@@ -537,6 +537,29 @@ $("m_increase").addEventListener("click", () => setMode("increase"));
 
 $("copyBtn").addEventListener("click", copyResult);
 
+// Theme toggle
+const themeBtn = document.getElementById("themeToggle");
+if(themeBtn){
+  themeBtn.addEventListener("click", () => {
+    // toggle dark <-> light (ง่ายสุดสำหรับใช้งานจริง)
+    const current = loadTheme();
+    const next = (current === "dark") ? "light" : "dark";
+    saveTheme(next);
+    applyTheme(next);
+  });
+}
+
+// Apply theme on load
+applyTheme(loadTheme());
+
+// Update icon if system theme changes while on auto
+if(window.matchMedia){
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if(loadTheme() === "auto") applyTheme("auto");
+  });
+}
+
+
 $("clearHistoryBtn").addEventListener("click", () => {
   const ok = confirm("ล้างประวัติทั้งหมดใช่ไหม?");
   if (ok) clearHistory();
@@ -591,4 +614,5 @@ updateHistoryCount();
 setPage("calc");
 setMode("normal");
 recalc();
+
 
