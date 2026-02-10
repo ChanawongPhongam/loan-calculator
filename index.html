@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>เครื่องคำนวณตัดเงินกู้รายวัน (100 ละ 20 / 24 วัน)</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <h1>เครื่องคำนวณ “ตัดเงินกู้รายวัน” (100 ละ 20 / 24 วัน)</h1>
+    <p class="sub">
+      สูตร: งวด/วัน = ยอด÷20, รับจริง = 90%, ยอดค้าง = (24-วันส่ง)×งวดเดิม/วัน
+      <br>ตัดธรรมดา: เงินตัด = รับจริงเดิม − ยอดค้าง | ลดยอด/เพิ่มยอด: เงินได้ = รับจริงยอดใหม่ − ยอดค้าง
+    </p>
+
+    <!-- NAV BAR (2 หน้า) -->
+    <div class="nav">
+      <button id="nav_calc" class="navBtn active" type="button">คำนวณ</button>
+      <button id="nav_history" class="navBtn" type="button">
+        ประวัติ <span id="historyCount" class="badge">0</span>
+      </button>
+    </div>
+
+    <!-- PAGE: CALCULATOR -->
+    <section id="page_calc">
+      <div class="toolbar">
+        <label class="toolField">
+          <div class="lbl">ชื่อลูกค้า</div>
+          <input id="customerName" placeholder="เช่น สมชาย / ร้าน A" />
+        </label>
+
+        <div class="toolButtons">
+          <button id="copyBtn" class="btn copy" type="button">คัดลอกผลลัพธ์</button>
+          <div id="copyStatus" class="status" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <button id="m_normal" class="btn active" type="button">ตัดธรรมดา</button>
+        <button id="m_reduce" class="btn" type="button">ตัดลดยอด</button>
+        <button id="m_increase" class="btn" type="button">เพิ่มยอด</button>
+      </div>
+
+      <div class="card">
+        <h3 class="cardTitle">ข้อมูลเดิม</h3>
+        <div class="grid">
+          <label>
+            <div class="lbl">ยอดเดิม (บาท)</div>
+            <input id="oldPrincipal" value="100000" inputmode="numeric" />
+          </label>
+
+          <label>
+            <div class="lbl">ส่งมาแล้ว (วัน) 0–24</div>
+            <input id="daysPaid" value="10" inputmode="numeric" />
+          </label>
+
+          <div>
+            <div class="lbl">งวดเดิม/วัน</div>
+            <div class="read" id="payPerDayOld">-</div>
+          </div>
+
+          <div>
+            <div class="lbl">รับจริงเดิม (90%)</div>
+            <div class="read" id="receiveOld">-</div>
+          </div>
+
+          <div>
+            <div class="lbl">วันค้าง</div>
+            <div class="read" id="daysOwed">-</div>
+          </div>
+
+          <div>
+            <div class="lbl">ยอดค้าง</div>
+            <div class="read" id="owedAmount">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="newBox" class="card mt12 hidden">
+        <h3 class="cardTitle" id="newTitle">ข้อมูลยอดใหม่</h3>
+        <div class="grid">
+          <label>
+            <div class="lbl">ยอดใหม่ที่ต้องการ (บาท)</div>
+            <input id="newPrincipal" value="80000" inputmode="numeric" />
+          </label>
+
+          <div>
+            <div class="lbl">รับจริงยอดใหม่ (90%)</div>
+            <div class="read" id="receiveNew">-</div>
+          </div>
+
+          <div>
+            <div class="lbl">งวดใหม่/วัน</div>
+            <div class="read" id="payPerDayNew">-</div>
+          </div>
+
+          <div>
+            <div class="lbl">ขั้นต่ำยอดใหม่ที่ “ตัดได้”</div>
+            <div class="read" id="minNewPrincipal">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt12">
+        <h3 class="cardTitle">ผลลัพธ์</h3>
+
+        <div id="normalResult">
+          <div class="resultLine">
+            เงินตัดให้ลูกค้า = รับจริงเดิม − ยอดค้าง = <b id="cashOutNormal">-</b>
+          </div>
+          <div class="hint">
+            ถ้าติดลบ แปลว่า “ยังตัดธรรมดาไม่ได้” (ยอดค้างมากกว่ารับจริงเดิม)
+          </div>
+        </div>
+
+        <div id="newResult" class="hidden">
+          <div class="resultLine">ตัดได้ไหม: <span id="canCut">-</span></div>
+          <div class="resultLine">
+            เงินที่ลูกค้าได้รับ = รับจริงยอดใหม่ − ยอดค้างเดิม = <b id="cashOutNew">-</b>
+          </div>
+          <div class="hint">
+            ถ้าติดลบ = ตัดไม่ได้ (ต้องเพิ่ม “ยอดใหม่” ให้ถึงขั้นต่ำ หรือส่งวันให้มากขึ้นเพื่อลดยอดค้าง)
+          </div>
+        </div>
+
+        <div class="topnote">
+          หมายเหตุ: หลัง “ตัด” แล้วระบบของคุณคือเริ่มนับสัญญาใหม่ <b>1/24 วัน</b> ทันที
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: HISTORY -->
+    <section id="page_history" class="hidden">
+      <div class="card">
+        <div class="historyHeader">
+          <h3 class="cardTitle" style="margin:0;">ประวัติ</h3>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <!-- ปุ่มนี้จะทำงานเมื่อเราใส่ JS หน้าถัดไป -->
+            <button id="exportXlsxAllBtn" class="btn" type="button">ส่งออก Excel (ทั้งหมด)</button>
+            <button id="clearHistoryBtn" class="btn danger" type="button">ล้างทั้งหมด</button>
+          </div>
+        </div>
+
+        <div class="hint" style="margin-top:8px;">
+          หมายเหตุ: ส่งออกเป็นไฟล์ <b>.xlsx</b> (เปิดใน Excel ได้) — ปุ่มจะเริ่มทำงานหลังใส่ JS หน้า export
+        </div>
+
+        <div id="historyList" class="historyList" style="margin-top:12px;"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ✅ SheetJS (XLSX) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- app -->
+  <script src="./app.js"></script>
+</body>
+</html>
