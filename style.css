@@ -418,3 +418,151 @@ input:focus{
 
 /* Make <details> feel nice */
 details > summary{ user-select:none; }
+
+/* ===== iOS app-like + Dark mode (append at end) ===== */
+
+/* Safe-area for iPhone notch/home indicator */
+:root{
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}
+
+/* Make it feel like an iOS app */
+body{
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+.wrap{
+  padding-top: calc(16px + var(--safe-top));
+  padding-left: calc(16px + var(--safe-left));
+  padding-right: calc(16px + var(--safe-right));
+  padding-bottom: calc(16px + var(--safe-bottom));
+}
+
+/* Make buttons feel iOS */
+.btn, .navBtn, input, .read, .smallBtn{
+  border-radius: 16px;
+}
+
+.btn, .navBtn, .smallBtn{
+  touch-action: manipulation;
+}
+
+.btn:focus, .navBtn:focus, .smallBtn:focus, input:focus{
+  outline: none;
+}
+
+/* Floating “app” vibe: slightly tighter spacing on phones */
+@media (max-width: 540px){
+  .card{ padding: 12px; }
+  .cardTitle{ font-size: 15px; }
+  .resultLine{ font-size: 15px; }
+}
+
+/* ===== Dark mode variables ===== */
+:root{
+  --dm-bg: #0b1220;
+  --dm-bg-2: #0f172a;
+  --dm-card: rgba(255,255,255,.06);
+  --dm-border: rgba(255,255,255,.10);
+  --dm-text: #e5e7eb;
+  --dm-muted: rgba(229,231,235,.72);
+  --dm-shadow: 0 12px 40px rgba(0,0,0,.45);
+}
+
+/* Auto dark if user prefers (can be overridden by toggle) */
+@media (prefers-color-scheme: dark){
+  body:not(.theme-light){
+    background: radial-gradient(1200px 500px at 50% -200px, rgba(59,130,246,.22) 0%, var(--dm-bg) 60%, var(--dm-bg) 100%);
+  }
+}
+
+/* Manual dark mode */
+body.theme-dark{
+  background: radial-gradient(1200px 500px at 50% -200px, rgba(59,130,246,.22) 0%, var(--dm-bg) 60%, var(--dm-bg) 100%);
+  color: var(--dm-text);
+}
+
+body.theme-dark .sub,
+body.theme-dark .lbl,
+body.theme-dark .hint,
+body.theme-dark .itemMeta{
+  color: var(--dm-muted);
+}
+
+body.theme-dark .card,
+body.theme-dark .monthCard,
+body.theme-dark .dateCard,
+body.theme-dark .historyItem{
+  background: var(--dm-card);
+  border-color: var(--dm-border);
+  box-shadow: var(--dm-shadow);
+  backdrop-filter: blur(10px);
+}
+
+body.theme-dark input{
+  background: rgba(255,255,255,.06);
+  border-color: var(--dm-border);
+  color: var(--dm-text);
+}
+
+body.theme-dark input:focus{
+  border-color: rgba(255,255,255,.22);
+  box-shadow: 0 0 0 4px rgba(59,130,246,.18);
+}
+
+body.theme-dark .read{
+  background: rgba(255,255,255,.05);
+  border-color: rgba(255,255,255,.08);
+  color: var(--dm-text);
+}
+
+body.theme-dark .btn{
+  background: rgba(255,255,255,.06);
+  border-color: var(--dm-border);
+  color: var(--dm-text);
+}
+
+body.theme-dark .btn.active,
+body.theme-dark .btn.copy,
+body.theme-dark .navBtn.active{
+  border-color: transparent;
+}
+
+body.theme-dark .navBtn{
+  background: rgba(255,255,255,.06);
+  border-color: var(--dm-border);
+  color: var(--dm-text);
+}
+
+body.theme-dark .badge{
+  background: rgba(255,255,255,.10);
+  color: var(--dm-text);
+}
+
+body.theme-dark .pre{
+  background: rgba(255,255,255,.05);
+  border-color: rgba(255,255,255,.08);
+  color: var(--dm-text);
+}
+
+/* Make the theme toggle look like an iOS icon button */
+#themeToggle{
+  width: 48px;
+  min-width: 48px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (max-width: 540px){
+  #themeToggle{
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+
