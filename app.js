@@ -547,8 +547,48 @@ $("historyList").addEventListener("click", onHistoryClick);
 // Export all button (บนหัวหน้า history)
 $("exportXlsxAllBtn").addEventListener("click", exportXLSXAll);
 
+// ===== Theme (Dark mode) =====
+const THEME_KEY = "ui_theme_v1"; // "dark" | "light" | "auto"
+
+function applyTheme(mode){
+  // mode: "dark" | "light" | "auto"
+  document.body.classList.remove("theme-dark", "theme-light");
+
+  if(mode === "dark"){
+    document.body.classList.add("theme-dark");
+  } else if(mode === "light"){
+    document.body.classList.add("theme-light");
+  } else {
+    // auto: follow system, but allow prefers-color-scheme to do work
+    // no class needed
+  }
+
+  const btn = document.getElementById("themeToggle");
+  if(btn){
+    const isDark = document.body.classList.contains("theme-dark") ||
+      (!document.body.classList.contains("theme-light") && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+    btn.textContent = isDark ? "☀️" : "🌙";
+    btn.title = isDark ? "สลับเป็นโหมดสว่าง" : "สลับเป็นโหมดมืด";
+  }
+}
+
+function loadTheme(){
+  try{
+    return localStorage.getItem(THEME_KEY) || "auto";
+  }catch{
+    return "auto";
+  }
+}
+
+function saveTheme(v){
+  try{ localStorage.setItem(THEME_KEY, v); }catch{}
+}
+
+
 // Start
 updateHistoryCount();
 setPage("calc");
 setMode("normal");
 recalc();
+
