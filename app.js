@@ -608,38 +608,46 @@ function saveTheme(v){
   try{ localStorage.setItem(THEME_KEY, v); }catch{}
 }
 
-// ===== One-press delete clears whole field (numeric inputs) =====
+// ===== FORCE one-press delete clear (robust version) =====
 function enableOnePressDeleteClear(){
-  // เลือกเฉพาะช่องตัวเลข (ไม่รวมชื่อลูกค้า)
   const ids = ["oldPrincipal", "daysPaid", "newPrincipal"];
 
   ids.forEach(id => {
     const el = document.getElementById(id);
     if(!el) return;
 
-    // คอมพิวเตอร์: Backspace/Delete
+    function clearField(e){
+      e.preventDefault();
+      el.value = "";
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    // คอม
     el.addEventListener("keydown", (e) => {
       if(e.key === "Backspace" || e.key === "Delete"){
-        e.preventDefault();
-        el.value = "";
-        el.dispatchEvent(new Event("input")); // ให้ recalc ทำงานทันที
+        clearField(e);
       }
     });
 
-    // มือถือ (iOS/Android): beforeinput จะจับการลบจากคีย์บอร์ดมือถือได้ดี
+    // มือถือ (iOS/Android)
+    el.addEventListener("input", (e) => {
+      if(e.inputType === "deleteContentBackward" ||
+         e.inputType === "deleteContentForward"){
+        clearField(e);
+      }
+    });
+
+    // fallback เพิ่มอีกชั้น
     el.addEventListener("beforeinput", (e) => {
-      const t = e.inputType;
-      if(t === "deleteContentBackward" || t === "deleteContentForward"){
-        e.preventDefault();
-        el.value = "";
-        el.dispatchEvent(new Event("input"));
+      if(e.inputType && e.inputType.includes("delete")){
+        clearField(e);
       }
     });
   });
 }
 
-// เรียกใช้งาน
 enableOnePressDeleteClear();
+;
 
 
 // Start
@@ -647,6 +655,7 @@ updateHistoryCount();
 setPage("calc");
 setMode("normal");
 recalc();
+
 
 
 
