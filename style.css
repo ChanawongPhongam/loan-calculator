@@ -1,50 +1,121 @@
-:root{
-  --bg: #f6f7fb;
-  --card: #ffffff;
-  --text: #111827;
-  --muted: #6b7280;
+/* =========================================
+   PRO THEME – iOS Glass UI (Light/Dark)
+   file: style.css  (วางทับทั้งไฟล์)
+========================================= */
 
-  --border: #e5e7eb;
-  --border-2: #eef2f7;
-
-  --primary: #111827;
-  --primary-2: #0b1220;
-
-  --danger: #dc2626;
-  --danger-bg: #fef2f2;
-
-  --success: #16a34a;
-  --success-bg: #f0fdf4;
-
-  --shadow: 0 8px 30px rgba(17, 24, 39, .08);
-  --radius: 16px;
-
-  --tap: 44px;
-}
-
-*{ box-sizing:border-box; }
-
-html, body{ height:100%; }
-
+/* ===== CSS Reset (soft) ===== */
+*{ box-sizing: border-box; }
+html,body{ height: 100%; }
 body{
-  margin:0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans Thai", sans-serif;
-  background: radial-gradient(1200px 500px at 50% -200px, #e9efff 0%, var(--bg) 55%, var(--bg) 100%);
+  margin: 0;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+               "Segoe UI", Roboto, Helvetica, Arial, "Noto Sans Thai", "Apple Color Emoji", "Segoe UI Emoji";
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+/* ===== Theme Tokens ===== */
+:root{
+  /* layout */
+  --max: 980px;
+  --pad: 18px;
+  --radius: 22px;
+  --radius-md: 16px;
+  --radius-sm: 14px;
+
+  /* spacing */
+  --gap: 14px;
+  --gap2: 12px;
+
+  /* colors (default = light) */
+  --bg0: #f5f7fb;
+  --bg1: #eef2f8;
+  --text: #0b1220;
+  --muted: rgba(11,18,32,.65);
+  --muted2: rgba(11,18,32,.5);
+
+  --glass: rgba(255,255,255,.72);
+  --glass2: rgba(255,255,255,.55);
+  --border: rgba(15,23,42,.12);
+
+  --shadow: 0 20px 60px rgba(15,23,42,.12);
+  --shadow2: 0 10px 30px rgba(15,23,42,.10);
+
+  --accent: rgba(59,130,246,1);      /* blue */
+  --accentSoft: rgba(59,130,246,.14);
+
+  --ok: rgba(16,185,129,1);          /* green */
+  --okSoft: rgba(16,185,129,.16);
+
+  --bad: rgba(239,68,68,1);          /* red */
+  --badSoft: rgba(239,68,68,.16);
+
+  --warn: rgba(245,158,11,1);        /* amber */
+  --warnSoft: rgba(245,158,11,.16);
+
+  /* controls */
+  --btn: rgba(255,255,255,.78);
+  --btnBorder: rgba(15,23,42,.14);
+
+  --field: rgba(255,255,255,.86);
+  --fieldBorder: rgba(15,23,42,.16);
+
+  /* iOS safe area */
+  --safeTop: env(safe-area-inset-top);
+  --safeBottom: env(safe-area-inset-bottom);
+}
+
+/* ===== Dark Theme Tokens ===== */
+body.theme-dark{
+  --bg0: #0b0f14;
+  --bg1: #0f1722;
+  --text: rgba(255,255,255,.94);
+  --muted: rgba(255,255,255,.68);
+  --muted2: rgba(255,255,255,.52);
+
+  --glass: rgba(255,255,255,.06);
+  --glass2: rgba(255,255,255,.04);
+  --border: rgba(255,255,255,.10);
+
+  --shadow: 0 18px 70px rgba(0,0,0,.55);
+  --shadow2: 0 10px 34px rgba(0,0,0,.45);
+
+  --accent: rgba(56,189,248,1);     /* sky */
+  --accentSoft: rgba(56,189,248,.14);
+
+  --btn: rgba(255,255,255,.08);
+  --btnBorder: rgba(255,255,255,.12);
+
+  --field: rgba(255,255,255,.06);
+  --fieldBorder: rgba(255,255,255,.12);
+}
+
+/* ===== Background (Glass Gradient) ===== */
+body{
   color: var(--text);
+  background:
+    radial-gradient(1100px 520px at 15% -10%, rgba(56,189,248,.18), transparent 60%),
+    radial-gradient(900px 520px at 90% 0%, rgba(168,85,247,.16), transparent 55%),
+    linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 100%);
+  padding-top: calc(10px + var(--safeTop));
+  padding-bottom: calc(18px + var(--safeBottom));
 }
 
+/* ===== Container ===== */
 .wrap{
-  max-width: 980px;
+  max-width: var(--max);
   margin: 0 auto;
-  padding: 16px;
+  padding: 0 var(--pad);
 }
 
+/* ===== Headings ===== */
 h1{
+  margin: 10px 0 10px;
   font-size: 20px;
-  margin: 8px 0 6px;
-  letter-spacing: -0.2px;
+  font-weight: 800;
+  letter-spacing: .2px;
 }
-
 .sub{
   margin: 0 0 14px;
   color: var(--muted);
@@ -52,834 +123,429 @@ h1{
   line-height: 1.45;
 }
 
-/* ---------- Nav ---------- */
+/* ===== Utility ===== */
+.hidden{ display: none !important; }
+.mt12{ margin-top: 12px; }
+
+.hint{
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.ok{ color: var(--ok); font-weight: 800; }
+.no{ color: var(--bad); font-weight: 800; }
+
+/* ===== Nav ===== */
 .nav{
   display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin: 10px 0 14px;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 14px 0 14px;
 }
 
 .navBtn{
   flex: 1 1 180px;
-  min-height: var(--tap);
-  border:1px solid var(--border);
-  background: rgba(255,255,255,.9);
-  padding: 12px 14px;
-  border-radius: 14px;
-  cursor:pointer;
-  font-weight: 900;
+  min-height: 44px;
+  border-radius: 999px;
+  background: var(--btn);
+  border: 1px solid var(--btnBorder);
+  color: var(--text);
+  font-weight: 800;
+  letter-spacing: .2px;
+  box-shadow: var(--shadow2);
+  cursor: pointer;
+  transition: transform .12s ease, background .18s ease, border-color .18s ease;
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  box-shadow: 0 1px 0 rgba(0,0,0,.02);
-  transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+  justify-content:center;
+  gap: 8px;
 }
-
-.navBtn:active{ transform: scale(.99); }
-
+.navBtn:active{ transform: scale(.98); }
 .navBtn.active{
-  border-color: transparent;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
-  color:#fff;
-  box-shadow: 0 12px 30px rgba(17,24,39,.16);
+  background: var(--accentSoft);
+  border-color: rgba(59,130,246,.25);
 }
+
+/* Emojis on nav */
+#nav_calc::before{ content:"🧮"; }
+#nav_history::before{ content:"🗂️"; }
 
 .badge{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-width: 30px;
-  height: 24px;
-  padding: 0 10px;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 8px;
   border-radius: 999px;
-  background: #eef2ff;
-  color: #1f2a44;
-  font-weight: 900;
   font-size: 12px;
+  font-weight: 900;
+  background: rgba(0,0,0,.08);
+  border: 1px solid var(--border);
+}
+body.theme-dark .badge{
+  background: rgba(255,255,255,.08);
 }
 
-.navBtn.active .badge{
-  background: rgba(255,255,255,.15);
-  color: #fff;
+/* ===== Buttons ===== */
+.btn{
+  border: 1px solid var(--btnBorder);
+  background: var(--btn);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .12s ease, background .18s ease, border-color .18s ease;
+  box-shadow: var(--shadow2);
+}
+.btn:active{ transform: scale(.98); }
+
+.btn.copy::before{ content:"📋 "; }
+.btn.danger,
+.smallBtn.danger{
+  border-color: rgba(239,68,68,.35);
+  background: var(--badSoft);
+  color: var(--text);
+}
+body.theme-dark .btn.danger,
+body.theme-dark .smallBtn.danger{
+  color: rgba(255,255,255,.94);
 }
 
-/* ---------- Buttons ---------- */
+.smallBtn{
+  border: 1px solid var(--btnBorder);
+  background: var(--btn);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 8px 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .12s ease, background .18s ease, border-color .18s ease;
+}
+.smallBtn:active{ transform: scale(.98); }
+
+/* ===== Toolbar ===== */
+.toolbar{
+  display:flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin: 10px 0 12px;
+}
+.toolField{
+  flex: 1 1 260px;
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
+}
+.toolButtons{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  flex-wrap: wrap;
+}
+
+.status{
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+/* ===== Mode row ===== */
 .row{
   display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin: 10px 0 14px;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0;
 }
-
-.btn{
-  min-height: var(--tap);
-  border: 1px solid var(--border);
-  background: #fff;
-  padding: 11px 14px;
+.row .btn{
+  flex: 1 1 180px;
+  min-height: 44px;
   border-radius: 999px;
-  cursor:pointer;
-  font-weight: 900;
-  user-select:none;
-  transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
 }
 
-.btn:active{ transform: scale(.99); }
+/* Emojis on mode buttons */
+#m_normal::before{ content:"✂️ "; }
+#m_reduce::before{ content:"⬇️ "; }
+#m_increase::before{ content:"⬆️ "; }
 
-.btn.active{
-  border-color: transparent;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
-  color:#fff;
+/* Active mode */
+.row .btn.active{
+  background: var(--accentSoft);
+  border-color: rgba(59,130,246,.25);
 }
 
-.btn.copy{
-  border-color: transparent;
-  background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
-  color:#fff;
-}
-
-.btn.danger{
-  border-color: rgba(220,38,38,.35);
-  background: var(--danger-bg);
-  color: var(--danger);
-}
-
-/* smaller action buttons */
-.smallBtn{
-  min-height: 38px;
-  border:1px solid var(--border);
-  background:#fff;
-  padding: 8px 10px;
-  border-radius: 12px;
-  cursor:pointer;
-  font-weight: 900;
-  font-size: 13px;
-  transition: transform .08s ease, box-shadow .2s ease;
-}
-
-.smallBtn:active{ transform: scale(.99); }
-
-.smallBtn.danger{
-  border-color: rgba(220,38,38,.35);
-  background: var(--danger-bg);
-  color: var(--danger);
-}
-
-/* ---------- Cards ---------- */
+/* ===== Card ===== */
 .card{
-  background: var(--card);
+  background: var(--glass);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 14px;
+  padding: 16px;
   box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .cardTitle{
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   font-size: 16px;
-  letter-spacing: -0.2px;
+  font-weight: 900;
+  letter-spacing: .2px;
 }
+.cardTitle::before{ content:"✨ "; opacity: .85; }
 
-.mt12{ margin-top: 12px; }
-.hidden{ display:none; }
-
-/* ---------- Form ---------- */
-.toolbar{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  align-items:flex-end;
-  margin: 10px 0 12px;
-}
-
-.toolField{ flex: 1 1 280px; min-width: 260px; }
-.toolButtons{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-
-.lbl{
-  font-size: 12px;
-  color: var(--muted);
-  margin: 0 0 6px;
-}
-
-input{
-  width:100%;
-  min-height: var(--tap);
-  padding: 12px 12px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  font-size: 16px;
-  outline:none;
-  background: #fff;
-  transition: box-shadow .2s ease, border-color .2s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-input:focus{
-  border-color: rgba(17,24,39,.35);
-  box-shadow: 0 0 0 4px rgba(17,24,39,.08);
-}
-
-.read{
-  min-height: var(--tap);
-  padding: 12px 12px;
-  border-radius: 14px;
-  border: 1px solid var(--border-2);
-  background: #f9fafb;
-  font-size: 16px;
-  color: #0f172a;
-  display:flex;
-  align-items:center;
-}
-
-/* ---------- Grid ---------- */
+/* ===== Grid ===== */
 .grid{
   display:grid;
   grid-template-columns: repeat(3, minmax(0,1fr));
   gap: 12px;
 }
 
-@media (max-width: 900px){
+@media (max-width: 860px){
   .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
-
-@media (max-width: 540px){
-  .wrap{ padding: 12px; }
-  h1{ font-size: 18px; }
-  .sub{ font-size: 12px; }
-
+@media (max-width: 520px){
   .grid{ grid-template-columns: 1fr; }
-
-  /* ทำให้ปุ่ม/แถวเต็มจอ กดง่าย */
-  .btn, .navBtn{
-    width: 100%;
-  }
-
-  /* toolbar ให้เรียงลง */
-  .toolField{ min-width: 100%; }
-  .toolButtons{ width: 100%; justify-content: space-between; }
-  #copyBtn{ flex: 1 1 auto; width: 100%; }
-
-  /* ให้ status ไม่ดัน layout */
-  .status{ width: 100%; min-width: 0; }
+  .navBtn{ flex: 1 1 100%; }
 }
 
-/* ---------- Result ---------- */
+/* Labels + fields */
+.lbl{
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+.read{
+  min-height: 44px;
+  display:flex;
+  align-items:center;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--field);
+  border: 1px solid var(--fieldBorder);
+  font-weight: 900;
+}
+
+/* Inputs */
+input, textarea{
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--field);
+  border: 1px solid var(--fieldBorder);
+  color: var(--text);
+  font-weight: 900;
+  font-size: 16px;
+  outline: none;
+}
+input::placeholder, textarea::placeholder{
+  color: var(--muted2);
+  font-weight: 700;
+}
+input:focus, textarea:focus{
+  border-color: rgba(59,130,246,.35);
+  box-shadow: 0 0 0 4px var(--accentSoft);
+}
+
+/* daysPaid warning */
+.warn{
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--warn);
+  line-height: 1.35;
+  min-height: 16px;
+}
+.warn::before{ content:"⚠️ "; }
+
+/* ===== Result area ===== */
 .resultLine{
   font-size: 15px;
-  margin: 8px 0;
-  line-height: 1.45;
-}
-
-.hint{
-  color: var(--muted);
-  font-size: 13px;
-  margin-top: 8px;
+  font-weight: 800;
   line-height: 1.5;
+}
+.resultLine b{
+  font-size: 18px;
 }
 
 .topnote{
-  margin-top: 10px;
+  margin-top: 12px;
   padding-top: 10px;
-  border-top: 1px solid var(--border-2);
+  border-top: 1px dashed var(--border);
   color: var(--muted);
   font-size: 13px;
-  line-height: 1.5;
 }
 
-.ok{ color: var(--success); font-weight: 900; }
-.no{ color: var(--danger); font-weight: 900; }
-
-/* ---------- History ---------- */
+/* ===== History Page ===== */
 .historyHeader{
   display:flex;
-  gap:10px;
   align-items:center;
   justify-content:space-between;
-  flex-wrap:wrap;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .historyList{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
+  margin-top: 12px;
 }
 
-/* Month accordion */
-.monthCard{
-  border:1px solid var(--border);
-  border-radius: 16px;
-  background: #fff;
-  overflow:hidden;
-  box-shadow: 0 8px 24px rgba(17,24,39,.06);
+/* ===== Month / Date Cards ===== */
+.monthCard, .dateCard{
+  background: var(--glass2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow2);
+  margin-top: 12px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
-.monthCard summary{
-  list-style:none;
-  cursor:pointer;
-  padding: 12px 14px;
+.monthCard > summary,
+.dateCard > summary{
+  padding: 14px 16px;
+  font-weight: 900;
+  color: var(--text);
+  background: rgba(255,255,255,.25);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  gap:10px;
-  font-weight: 900;
-  background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
-  -webkit-tap-highlight-color: transparent;
-}
-
-.monthCard summary::-webkit-details-marker{ display:none; }
-
-.monthMeta{
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.monthBody{ padding: 0 14px 14px; }
-
-/* Date accordion */
-.dateCard{
-  border:1px solid var(--border);
-  border-radius: 14px;
-  background: #fff;
-  overflow:hidden;
-  margin-top: 10px;
-}
-
-.dateCard summary{
-  list-style:none;
-  cursor:pointer;
-  padding: 10px 12px;
-  display:flex;
   justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  font-weight: 900;
-  background: #fcfcfe;
-  -webkit-tap-highlight-color: transparent;
+  gap: 10px;
+}
+body.theme-dark .monthCard > summary,
+body.theme-dark .dateCard > summary{
+  background: rgba(255,255,255,.02);
 }
 
-.dateCard summary::-webkit-details-marker{ display:none; }
-
-.dateMeta{
-  color: var(--muted);
+.monthMeta, .dateMeta{
   font-size: 13px;
-  font-weight: 900;
+  color: var(--muted);
+  font-weight: 800;
 }
 
-.dateBody{ padding: 10px 12px 12px; }
+.monthBody, .dateBody{
+  padding: 14px 14px 16px;
+}
 
-/* History item */
+/* Native arrow */
+summary{ list-style:none; }
+summary::-webkit-details-marker{ display:none; }
+.monthCard > summary::after,
+.dateCard > summary::after{
+  content:"›";
+  opacity: .75;
+  font-size: 18px;
+  transform: rotate(0deg);
+  transition: transform .18s ease;
+}
+details[open] > summary::after{
+  transform: rotate(90deg);
+}
+
+/* ===== History Item ===== */
 .historyItem{
-  border:1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px;
-  background: #fff;
-  margin-top: 10px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 14px 12px;
+  box-shadow: var(--shadow2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .itemTop{
   display:flex;
   justify-content:space-between;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom: 8px;
+  align-items:flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
 }
-
-.itemName{ font-weight: 900; }
-.itemMeta{
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-.itemButtons{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-top: 10px;
-}
-
-.pre{
-  white-space:pre-wrap;
-  background:#f9fafb;
-  border:1px solid var(--border-2);
-  padding: 10px;
-  border-radius: 14px;
-  font-size: 13px;
-  margin: 8px 0 0;
-  line-height: 1.55;
-}
-
-/* Mobile: ทำปุ่มในประวัติเต็มบรรทัด */
-@media (max-width: 540px){
-  .itemButtons .smallBtn{ width: 100%; }
-}
-
-/* Make <details> feel nice */
-details > summary{ user-select:none; }
-
-/* ===== iOS app-like + Dark mode (append at end) ===== */
-
-/* Safe-area for iPhone notch/home indicator */
-:root{
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-right: env(safe-area-inset-right, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left: env(safe-area-inset-left, 0px);
-}
-
-/* Make it feel like an iOS app */
-body{
-  -webkit-font-smoothing: antialiased;
-  -webkit-text-size-adjust: 100%;
-}
-
-.wrap{
-  padding-top: calc(16px + var(--safe-top));
-  padding-left: calc(16px + var(--safe-left));
-  padding-right: calc(16px + var(--safe-right));
-  padding-bottom: calc(16px + var(--safe-bottom));
-}
-
-/* Make buttons feel iOS */
-.btn, .navBtn, input, .read, .smallBtn{
-  border-radius: 16px;
-}
-
-.btn, .navBtn, .smallBtn{
-  touch-action: manipulation;
-}
-
-.btn:focus, .navBtn:focus, .smallBtn:focus, input:focus{
-  outline: none;
-}
-
-/* Floating “app” vibe: slightly tighter spacing on phones */
-@media (max-width: 540px){
-  .card{ padding: 12px; }
-  .cardTitle{ font-size: 15px; }
-  .resultLine{ font-size: 15px; }
-}
-
-/* ===== Dark mode variables ===== */
-:root{
-  --dm-bg: #0b1220;
-  --dm-bg-2: #0f172a;
-  --dm-card: rgba(255,255,255,.06);
-  --dm-border: rgba(255,255,255,.10);
-  --dm-text: #e5e7eb;
-  --dm-muted: rgba(229,231,235,.72);
-  --dm-shadow: 0 12px 40px rgba(0,0,0,.45);
-}
-
-/* Auto dark if user prefers (can be overridden by toggle) */
-@media (prefers-color-scheme: dark){
-  body:not(.theme-light){
-    background: radial-gradient(1200px 500px at 50% -200px, rgba(59,130,246,.22) 0%, var(--dm-bg) 60%, var(--dm-bg) 100%);
-  }
-}
-
-/* Manual dark mode */
-body.theme-dark{
-  background: radial-gradient(1200px 500px at 50% -200px, rgba(59,130,246,.22) 0%, var(--dm-bg) 60%, var(--dm-bg) 100%);
-  color: var(--dm-text);
-}
-
-body.theme-dark .sub,
-body.theme-dark .lbl,
-body.theme-dark .hint,
-body.theme-dark .itemMeta{
-  color: var(--dm-muted);
-}
-
-body.theme-dark .card,
-body.theme-dark .monthCard,
-body.theme-dark .dateCard,
-body.theme-dark .historyItem{
-  background: var(--dm-card);
-  border-color: var(--dm-border);
-  box-shadow: var(--dm-shadow);
-  backdrop-filter: blur(10px);
-}
-
-body.theme-dark input{
-  background: rgba(255,255,255,.06);
-  border-color: var(--dm-border);
-  color: var(--dm-text);
-}
-
-body.theme-dark input:focus{
-  border-color: rgba(255,255,255,.22);
-  box-shadow: 0 0 0 4px rgba(59,130,246,.18);
-}
-
-body.theme-dark .read{
-  background: rgba(255,255,255,.05);
-  border-color: rgba(255,255,255,.08);
-  color: var(--dm-text);
-}
-
-body.theme-dark .btn{
-  background: rgba(255,255,255,.06);
-  border-color: var(--dm-border);
-  color: var(--dm-text);
-}
-
-body.theme-dark .btn.active,
-body.theme-dark .btn.copy,
-body.theme-dark .navBtn.active{
-  border-color: transparent;
-}
-
-body.theme-dark .navBtn{
-  background: rgba(255,255,255,.06);
-  border-color: var(--dm-border);
-  color: var(--dm-text);
-}
-
-body.theme-dark .badge{
-  background: rgba(255,255,255,.10);
-  color: var(--dm-text);
-}
-
-body.theme-dark .pre{
-  background: rgba(255,255,255,.05);
-  border-color: rgba(255,255,255,.08);
-  color: var(--dm-text);
-}
-
-/* Make the theme toggle look like an iOS icon button */
-#themeToggle{
-  width: 48px;
-  min-width: 48px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-@media (max-width: 540px){
-  #themeToggle{
-    width: 100%;
-    min-width: 0;
-  }
-}
-
-
-@media (max-width: 540px){
-  .resultTop{
-    position: sticky;
-    top: 10px;
-    z-index: 20;
-  }
-}
-
-.warn{
-  margin-top: 6px;
-  font-size: 12px;
-  font-weight: 800;
-  color: #dc2626;
-  line-height: 1.35;
-  min-height: 16px;
-}
-
-/* =========================================
-   iOS GLASS DARK MODE – HISTORY SECTION
-   วางท้าย style.css
-========================================= */
-
-body.theme-dark{
-  background: #0c0f14;
-}
-
-/* หน้า history พื้นหลังลึก */
-body.theme-dark #page_history{
-  background: linear-gradient(180deg,#0c0f14 0%, #0f1622 100%);
-  color: #f5f7fa;
-}
-
-/* การ์ดหลัก */
-body.theme-dark #page_history .card{
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 22px;
-  box-shadow:
-    0 20px 60px rgba(0,0,0,.55),
-    inset 0 1px 0 rgba(255,255,255,.05);
-}
-
-/* ===== เดือน ===== */
-body.theme-dark .monthCard{
-  background: rgba(255,255,255,0.035);
-  backdrop-filter: blur(14px);
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.07);
-  margin-top: 16px;
-  overflow: hidden;
-}
-
-body.theme-dark .monthCard > summary{
-  padding: 14px 18px;
-  font-weight: 600;
-  font-size: 15px;
-  background: rgba(255,255,255,0.02);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  color: #ffffff;
-}
-
-/* ===== วัน ===== */
-body.theme-dark .dateCard{
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(12px);
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.07);
-  margin-top: 12px;
-  overflow: hidden;
-}
-
-body.theme-dark .dateCard > summary{
-  padding: 12px 16px;
-  font-weight: 500;
-  font-size: 14px;
-  background: rgba(255,255,255,0.02);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  color: #f1f4f8;
-}
-
-/* ===== รายการลูกค้า ===== */
-body.theme-dark .historyItem{
-  background: rgba(255,255,255,0.045);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.08);
-  padding: 14px 16px;
-  margin-top: 12px;
-  box-shadow:
-    0 8px 30px rgba(0,0,0,.45),
-    inset 0 1px 0 rgba(255,255,255,.05);
-}
-
-/* ตัวหนังสือหลัก */
-body.theme-dark .itemName{
-  font-weight: 600;
-  color: #ffffff;
+.itemName{
+  font-size: 16px;
+  font-weight: 1000;
   letter-spacing: .2px;
 }
-
-/* ตัวเลขเงิน */
-body.theme-dark .historyItem b{
-  font-size: 16px;
-  color: #ffffff;
-}
-
-/* ตัวหนังสือรอง */
-body.theme-dark .monthMeta,
-body.theme-dark .dateMeta,
-body.theme-dark .itemMeta{
-  color: rgba(255,255,255,0.65);
+.itemName::before{ content:"👤 "; opacity: .9; }
+.itemMeta{
   font-size: 13px;
+  color: var(--muted);
+  font-weight: 800;
 }
 
-/* กล่องข้อความที่คัดลอก */
-body.theme-dark .pre{
-  background: rgba(0,0,0,0.45);
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.08);
-  padding: 10px;
-  color: #e6edf3;
-  font-size: 13px;
-}
-
-/* ===== ปุ่ม ===== */
-body.theme-dark .smallBtn{
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: #ffffff;
-  border-radius: 12px;
-  padding: 6px 12px;
-  transition: all .2s ease;
-}
-
-body.theme-dark .smallBtn:hover{
-  background: rgba(255,255,255,0.12);
-}
-
-body.theme-dark .smallBtn.danger{
-  background: rgba(239,68,68,0.18);
-  border: 1px solid rgba(239,68,68,0.35);
-  color: #fff;
-}
-
-/* ===== summary arrow เนียนขึ้น ===== */
-body.theme-dark summary{
-  cursor: pointer;
-  list-style: none;
-}
-
-body.theme-dark summary::-webkit-details-marker{
-  display:none;
-}
-
-body.theme-dark summary::after{
-  content: "›";
-  float: right;
-  transition: transform .2s ease;
-  opacity: .7;
-}
-
-body.theme-dark details[open] > summary::after{
-  transform: rotate(90deg);
-}
-
-/* =========================================
-   NATIVE iOS GLASS (Dark) – Fix white parts
-   วางท้าย style.css
-========================================= */
-
-body.theme-dark{
-  background: radial-gradient(1200px 600px at 20% -10%, rgba(56,189,248,.08), transparent 60%),
-              radial-gradient(900px 500px at 90% 0%, rgba(168,85,247,.08), transparent 55%),
-              linear-gradient(180deg,#0b0f14 0%, #0f1722 100%);
-  color: #f5f7fa;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: geometricPrecision;
-}
-
-/* ---------- Inputs/textarea: ห้ามขาวในธีมมืด ---------- */
-body.theme-dark input,
-body.theme-dark textarea{
-  background: rgba(255,255,255,.06) !important;
-  color: rgba(255,255,255,.92) !important;
-  border: 1px solid rgba(255,255,255,.12) !important;
+/* Copied text block */
+.pre{
+  background: rgba(0,0,0,.04);
+  border: 1px solid var(--border);
   border-radius: 14px;
-  outline: none;
+  padding: 12px;
+  margin-top: 10px;
+  color: var(--text);
+  white-space: pre-wrap;
+  font-weight: 800;
+  font-size: 13px;
+}
+body.theme-dark .pre{
+  background: rgba(0,0,0,.45);
+  color: rgba(255,255,255,.92);
+  border-color: rgba(255,255,255,.10);
 }
 
-body.theme-dark input::placeholder,
-body.theme-dark textarea::placeholder{
-  color: rgba(255,255,255,.45);
-}
-
-body.theme-dark input:focus,
-body.theme-dark textarea:focus{
-  border-color: rgba(56,189,248,.35) !important;
-  box-shadow: 0 0 0 4px rgba(56,189,248,.12);
-}
-
-/* ---------- HISTORY: รายการ/การ์ด (glass) ---------- */
-body.theme-dark #page_history .card{
-  background: rgba(255,255,255,.04);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255,255,255,.09);
-  border-radius: 22px;
-  box-shadow: 0 18px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05);
-}
-
-body.theme-dark .monthCard,
-body.theme-dark .dateCard,
-body.theme-dark .historyItem{
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.08);
-  box-shadow: 0 10px 34px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
-}
-
-/* ---------- Summary: ทำเป็น native accordion ---------- */
-body.theme-dark summary{
-  list-style: none;
-  cursor: pointer;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-body.theme-dark summary::-webkit-details-marker{ display:none; }
-
-/* month summary / date summary */
-body.theme-dark .monthCard > summary,
-body.theme-dark .dateCard > summary{
-  background: rgba(255,255,255,.02);
-  color: rgba(255,255,255,.94);
-}
-
-/* ---------- "ดูข้อความที่คัดลอก" (copySummary) ---------- */
-body.theme-dark .copySummary{
-  display: inline-flex;
-  align-items: center;
+/* Copy summary pill (รองรับกรณีแก้ app.js เป็น class copySummary) */
+.copySummary{
+  display:inline-flex;
+  align-items:center;
   gap: 8px;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.10);
-  color: rgba(255,255,255,.88);
-  font-weight: 600;
-  font-size: 13px;
-  letter-spacing: .2px;
+  background: var(--btn);
+  border: 1px solid var(--btnBorder);
+  color: var(--text);
+  font-weight: 900;
   margin-top: 10px;
 }
-body.theme-dark .copySummary::after{
-  content: "›";
-  margin-left: 2px;
-  opacity: .75;
-  transform: rotate(90deg);
-}
-body.theme-dark details:not([open]) > .copySummary::after{
-  transform: rotate(0deg);
-}
-body.theme-dark .copySummary:hover{
-  background: rgba(255,255,255,.10);
+.copySummary::before{ content:"📝"; }
+body.theme-dark .copySummary{
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.10);
+  color: rgba(255,255,255,.90);
 }
 
-/* ---------- กล่องข้อความที่คัดลอก (pre) ทำให้ดำ+คม ---------- */
-body.theme-dark .pre{
-  background: rgba(0,0,0,.40) !important;
-  border: 1px solid rgba(255,255,255,.10);
+/* Buttons in item */
+.itemButtons{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ===== Theme button (🌙/☀️) ===== */
+#themeToggle{
+  width: 44px;
+  min-width: 44px;
+  padding: 0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   border-radius: 14px;
-  color: rgba(255,255,255,.92);
-  padding: 12px 12px;
-  font-size: 13px;
-  line-height: 1.5;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+  font-size: 18px;
 }
 
-/* ---------- ลดสีตัวรองให้สวย ---------- */
-body.theme-dark .monthMeta,
-body.theme-dark .dateMeta,
-body.theme-dark .itemMeta{
-  color: rgba(255,255,255,.62) !important;
+/* ===== Make everything feel "native" ===== */
+a, button, input, summary{
+  -webkit-tap-highlight-color: transparent;
 }
-
-/* ---------- ปุ่มให้เหมือน native ---------- */
-body.theme-dark .smallBtn{
-  background: rgba(255,255,255,.07);
-  border: 1px solid rgba(255,255,255,.12);
-  color: rgba(255,255,255,.92);
-  border-radius: 14px;
-  padding: 8px 12px;
-  font-weight: 700;
-}
-body.theme-dark .smallBtn:hover{
-  background: rgba(255,255,255,.12);
-}
-body.theme-dark .smallBtn.danger{
-  background: rgba(239,68,68,.18);
-  border: 1px solid rgba(239,68,68,.35);
-  color: rgba(255,255,255,.96);
-}
-
-/* ---------- animation เล็ก ๆ เวลาเปิด details ---------- */
-body.theme-dark details > .dateBody,
-body.theme-dark details > .monthBody{
+details > .monthBody,
+details > .dateBody{
   animation: fadeInUp .18s ease-out;
 }
 @keyframes fadeInUp{
   from{ opacity:0; transform: translateY(-4px); }
   to{ opacity:1; transform: translateY(0); }
 }
-
-
-
-
-
-
-
