@@ -667,20 +667,47 @@ function enableOperatorShortcuts(){
   // 1) NORMAL MODE: Enter toggle old <-> days
   function onEnterToggle(e){
     if(e.key !== "Enter") return;
-    if(e.ctrlKey || e.metaKey || e.shiftKey) return; // กันชนกับ shortcut copy
-    if(mode !== "normal") return;
 
-    if(e.target === oldEl){
-      e.preventDefault();
-      focusEl(daysEl);
-    } else if(e.target === daysEl){
-      e.preventDefault();
-      focusEl(oldEl);
+    // กันชนกับ shortcut copy (Ctrl/Cmd/Shift)
+    if(e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+    const t = e.target;
+
+    // โหมดธรรมดา: Enter สลับ 2 ช่อง old <-> days
+    if(mode === "normal"){
+      if(t === oldEl){
+        e.preventDefault();
+        focusEl(daysEl);
+      } else if(t === daysEl){
+        e.preventDefault();
+        focusEl(oldEl);
+      }
+      return;
+    }
+
+    // โหมดลดยอด/เพิ่มยอด: Enter วน 3 ช่อง old -> days -> new -> old
+    if(mode === "reduce" || mode === "increase"){
+      if(t === oldEl){
+        e.preventDefault();
+        focusEl(daysEl);
+      } else if(t === daysEl){
+        e.preventDefault();
+        focusEl(newEl);
+      } else if(newEl && t === newEl){
+        e.preventDefault();
+        focusEl(oldEl);
+      }
+      return;
     }
   }
 
+
   oldEl.addEventListener("keydown", onEnterToggle);
   daysEl.addEventListener("keydown", onEnterToggle);
+  if(newEl){
+    newEl.addEventListener("keydown", onEnterToggle);
+  }
+
 
   // 2) Reduce/Increase: trap Tab within [old, days, new]
   function getTabOrder(){
@@ -832,3 +859,4 @@ setPage("calc");
 setMode("normal");
 clampDaysPaidLive();
 recalc();
+
