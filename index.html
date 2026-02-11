@@ -130,13 +130,21 @@
 
     </section>
 
-    <!-- PAGE HISTORY -->
-    <section id="page_history" class="hidden">
-      <div class="card">
-        <h3 class="cardTitle">ประวัติ</h3>
-        <div id="historyList" class="historyList"></div>
+<!-- PAGE: HISTORY -->
+<section id="page_history" class="hidden">
+  <div class="card">
+    <div class="historyHeader">
+      <h3 class="cardTitle" style="margin:0;">ประวัติ</h3>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button id="exportXlsxAllBtn" class="btn" type="button">ส่งออก Excel (ทั้งหมด)</button>
+        <button id="clearHistoryBtn" class="btn danger" type="button">ล้างทั้งหมด</button>
       </div>
-    </section>
+    </div>
+
+    <div id="historyList" class="historyList" style="margin-top:12px;"></div>
+  </div>
+</section>
+
 
   </div>
 
@@ -144,3 +152,4 @@
   <script src="./app.js"></script>
 </body>
 </html>
+
