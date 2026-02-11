@@ -608,7 +608,7 @@ function saveTheme(v){
   try{ localStorage.setItem(THEME_KEY, v); }catch{}
 }
 
-// ===== FORCE one-press delete clear (robust version) =====
+// ===== One-press delete = clear whole field (ULTRA robust) =====
 function enableOnePressDeleteClear(){
   const ids = ["oldPrincipal", "daysPaid", "newPrincipal"];
 
@@ -616,38 +616,60 @@ function enableOnePressDeleteClear(){
     const el = document.getElementById(id);
     if(!el) return;
 
-    function clearField(e){
-      e.preventDefault();
+    let prev = el.value || "";
+    let clearing = false;
+
+    function clearNow(){
+      if(clearing) return;
+      clearing = true;
+
       el.value = "";
+      // ให้ recalc ทำงานทันที
       el.dispatchEvent(new Event("input", { bubbles: true }));
+
+      prev = "";
+      clearing = false;
     }
 
-    // คอม
+    // อัปเดต prev ตอนเข้า/ออก เพื่อให้เทียบความยาวได้ถูก
+    el.addEventListener("focus", () => { prev = el.value || ""; });
+    el.addEventListener("click", () => { prev = el.value || ""; });
+
+    // คอม: ถ้ากด Backspace/Delete ให้ล้างทันที
     el.addEventListener("keydown", (e) => {
       if(e.key === "Backspace" || e.key === "Delete"){
-        clearField(e);
+        e.preventDefault();
+        clearNow();
       }
     });
 
-    // มือถือ (iOS/Android)
+    // มือถือ: จับจาก inputType หรือ “ความยาวสั้นลง”
     el.addEventListener("input", (e) => {
-      if(e.inputType === "deleteContentBackward" ||
-         e.inputType === "deleteContentForward"){
-        clearField(e);
-      }
-    });
+      if(clearing) return;
 
-    // fallback เพิ่มอีกชั้น
-    el.addEventListener("beforeinput", (e) => {
-      if(e.inputType && e.inputType.includes("delete")){
-        clearField(e);
+      const cur = el.value || "";
+      const t = e.inputType || "";
+
+      // 1) คีย์บอร์ดที่ส่ง inputType delete มา
+      if(t.includes("delete")){
+        clearNow();
+        return;
       }
+
+      // 2) กันเคสที่ไม่ส่ง inputType: ถ้าความยาวสั้นลง = ถือว่าลบ
+      if(cur.length < prev.length){
+        clearNow();
+        return;
+      }
+
+      // ปกติ: อัปเดต prev
+      prev = cur;
     });
   });
 }
 
 enableOnePressDeleteClear();
-;
+
 
 
 // Start
@@ -655,6 +677,7 @@ updateHistoryCount();
 setPage("calc");
 setMode("normal");
 recalc();
+
 
 
 
