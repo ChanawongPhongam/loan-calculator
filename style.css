@@ -698,7 +698,7 @@ details > .dateBody{
 
 /* iPad (landscape/กว้าง): จัด 2 คอลัมน์ ฟอร์ม/ผลลัพธ์ */
 /* iPad เท่านั้น: ทำ 2 คอลัมน์เฉพาะช่วง tablet */
-@media (min-width: 900px) and (max-width: 1180px){
+@media (min-width: 900px) and (max-width: 1180px) and (hover: none){
   #page_calc{
     display: grid;
     grid-template-columns: 1.15fr .85fr;
@@ -773,6 +773,7 @@ details > .dateBody{
     font-size: 14px;
   }
 }
+
 
 
 
