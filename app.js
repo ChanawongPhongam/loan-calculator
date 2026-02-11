@@ -14,7 +14,7 @@ const HISTORY_LIMIT = 5000;
 function $(id){ return document.getElementById(id); }
 
 function toNumber(v){
-  const n = Number(String(v).replace(/,/g,"").trim());
+  const n = Number(String(v ?? "").replace(/,/g,"").trim());
   return Number.isFinite(n) ? n : 0;
 }
 function clampInt(n, min, max){
@@ -32,7 +32,7 @@ function modeLabel(m){
 }
 function nowThaiString(){ return new Date().toLocaleString("th-TH"); }
 function escapeHtml(s){
-  return String(s)
+  return String(s ?? "")
     .replaceAll("&","&amp;")
     .replaceAll("<","&lt;")
     .replaceAll(">","&gt;")
@@ -72,7 +72,7 @@ function normalizeNumericInput(el){
 }
 function setDaysPaidWarn(msg){
   const w = $("daysPaidWarn");
-  if(!w) return; // ถ้า index.html ไม่ได้ใส่ ก็ไม่พัง แค่ไม่โชว์เตือน
+  if(!w) return; // ถ้า index.html ไม่ได้ใส่ ก็ไม่พัง แค่ไม่โชว์
   w.textContent = msg || "";
 }
 function clampDaysPaidLive(){
@@ -96,7 +96,7 @@ function clampDaysPaidLive(){
   const clamped = clampInt(n, 0, DAYS_TOTAL);
   if(clamped !== n){
     el.value = String(clamped);
-    setDaysPaidWarn(`ปรับให้อยู่ในช่วง 0–${DAYS_TOTAL} อัตโนมัติ`);
+    setDaysPaidWarn(`⚠️ ปรับให้อยู่ในช่วง 0–${DAYS_TOTAL} อัตโนมัติ`);
   } else {
     setDaysPaidWarn("");
   }
@@ -187,11 +187,11 @@ function recalc(){
   $("daysOwed") && ($("daysOwed").textContent = `${daysOwed} วัน`);
   $("owedAmount") && ($("owedAmount").textContent = `${fmt(owedAmount)} บาท`);
 
-  // ✅ แสดงเตือนตัดไม่ได้ในโหมดธรรมดา
+  // ✅ โหมดธรรมดา: ถ้าติดลบให้โชว์เตือน
   if($("cashOutNormal")){
     if(cashOutNormal < 0){
       $("cashOutNormal").innerHTML = `<span class="no">❌ ตัดไม่ได้ (${fmt(cashOutNormal)} บาท)</span>`;
-    }else{
+    } else {
       $("cashOutNormal").innerHTML = `<span class="ok">✅ ${fmt(cashOutNormal)} บาท</span>`;
     }
   }
@@ -221,25 +221,51 @@ function recalc(){
   };
 }
 
+// ===== Copy text (ละเอียด) =====
 function buildCopyText(s){
-  const nameLine = s.customerName ? `ลูกค้า: ${s.customerName}\n` : "";
+  const name = (s.customerName || "").trim() || "(ไม่ใส่ชื่อ)";
+  const modeTxt = modeLabel(s.mode);
+
+  const header = `👤 ลูกค้า: ${name}\n🧾 โหมด: ${modeTxt}\n`;
+
   const common =
-    `โหมด: ${modeLabel(s.mode)}\n` +
-    `ยอดเดิม: ${fmt(s.oldP)} | รับจริงเดิม: ${fmt(s.receiveOld)} | งวด/วัน: ${fmt(s.payPerDayOld)}\n` +
-    `ส่งแล้ว: ${s.daysPaid} วัน | วันค้าง: ${s.daysOwed} วัน | ยอดค้าง: ${fmt(s.owedAmount)}\n`;
+    `💰 ยอดเดิม: ${fmt(s.oldP)} | รับจริงเดิม: ${fmt(s.receiveOld)} | งวด/วัน: ${fmt(s.payPerDayOld)}\n` +
+    `📅 ส่งแล้ว: ${s.daysPaid} วัน | วันค้าง: ${s.daysOwed} วัน | ยอดค้าง: ${fmt(s.owedAmount)}\n`;
 
   if(s.mode === "normal"){
-    return nameLine + common +
-      `เงินตัดให้ลูกค้า: ${fmt(s.cashOutNormal)} บาท\n` +
-      `หมายเหตุ: ตัดแล้วเริ่มนับใหม่ 1/24 วัน`;
+    return header + common +
+      `✂️ เงินตัดให้ลูกค้า: ${fmt(s.cashOutNormal)} บาท\n` +
+      `🔁 หมายเหตุ: ตัดแล้วเริ่มนับใหม่ 1/24 วัน`;
   }
 
-  return nameLine + common +
-    `ยอดใหม่: ${fmt(s.newP)} | รับจริงยอดใหม่: ${fmt(s.receiveNew)} | งวดใหม่/วัน: ${fmt(s.payPerDayNew)}\n` +
-    `ตัดได้ไหม: ${s.canCut ? "ได้" : "ไม่ได้"}\n` +
-    `เงินที่ลูกค้าได้รับ: ${fmt(s.cashOutNew)} บาท\n` +
-    `ขั้นต่ำยอดใหม่ที่ตัดได้: ${fmt(s.minNewPrincipal)} บาท\n` +
-    `หมายเหตุ: ตัดแล้วเริ่มนับใหม่ 1/24 วัน`;
+  return header + common +
+    `🆕 ยอดใหม่: ${fmt(s.newP)} | รับจริงยอดใหม่: ${fmt(s.receiveNew)} | งวดใหม่/วัน: ${fmt(s.payPerDayNew)}\n` +
+    `✅ ตัดได้ไหม: ${s.canCut ? "ได้" : "ไม่ได้"}\n` +
+    `💸 เงินที่ลูกค้าได้รับ: ${fmt(s.cashOutNew)} บาท\n` +
+    `📌 ขั้นต่ำยอดใหม่ที่ตัดได้: ${fmt(s.minNewPrincipal)} บาท\n` +
+    `🔁 หมายเหตุ: ตัดแล้วเริ่มนับใหม่ 1/24 วัน`;
+}
+
+// ===== Copy text (สั้นสำหรับส่งจริง) =====
+function buildCopyTextShort(s){
+  const name = (s.customerName || "").trim() || "ไม่ใส่ชื่อ";
+
+  const modeEmoji =
+    s.mode === "normal" ? "✂️"
+    : s.mode === "reduce" ? "⬇️"
+    : "⬆️";
+
+  const money = (s.mode === "normal") ? s.cashOutNormal : s.cashOutNew;
+  const ok =
+    (s.mode === "normal")
+      ? (s.cashOutNormal >= 0 ? "✅" : "❌")
+      : (s.canCut ? "✅" : "❌");
+
+  if(!Number.isFinite(money) || money < 0){
+    return `👤${name} ${modeEmoji} ${ok} ตัดไม่ได้`;
+  }
+
+  return `👤${name} ${modeEmoji} 💸${fmt(money)} บาท`;
 }
 
 // ===== Clipboard =====
@@ -294,14 +320,17 @@ function clearHistory(){
 }
 
 // ===== Copy + Save history ONLY when copying =====
+// ✅ คัดลอก "สั้น" แต่บันทึก "ละเอียด" ในประวัติ
 async function copyResult(){
   if(!lastSnapshot) return;
 
-  const text = buildCopyText(lastSnapshot);
+  const shortText = buildCopyTextShort(lastSnapshot);     // คัดลอกจริง
+  const detailedText = buildCopyText(lastSnapshot);       // เก็บในประวัติ
+
   const statusEl = $("copyStatus");
 
   try{
-    await writeClipboard(text);
+    await writeClipboard(shortText);
 
     addHistoryItem({
       id: (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()) + "_" + Math.random().toString(16).slice(2)),
@@ -316,16 +345,19 @@ async function copyResult(){
       canCut: lastSnapshot.canCut,
       cashOutNormal: lastSnapshot.cashOutNormal,
       cashOutNew: lastSnapshot.cashOutNew,
-      copiedText: text
+
+      // ✅ เก็บ 2 แบบ
+      copiedText: detailedText,       // รายละเอียด
+      copiedTextShort: shortText      // สั้น
     });
 
     if(statusEl){
-      statusEl.textContent = "คัดลอกแล้ว + บันทึกประวัติ ✅";
+      statusEl.textContent = "📋 คัดลอกแบบสั้นแล้ว + บันทึกประวัติ ✅";
       setTimeout(()=> statusEl.textContent = "", 1500);
     }
   }catch{
     if(statusEl){
-      statusEl.textContent = "คัดลอกไม่สำเร็จ ❌";
+      statusEl.textContent = "❌ คัดลอกไม่สำเร็จ";
       setTimeout(()=> statusEl.textContent = "", 2000);
     }
   }
@@ -334,7 +366,7 @@ async function copyResult(){
 // ===== XLSX Export =====
 function ensureXLSX(){
   if(typeof XLSX === "undefined"){
-    alert("ยังโหลดไลบรารี XLSX ไม่สำเร็จ");
+    alert("ยังโหลดไลบรารี XLSX ไม่สำเร็จ (เช็คว่า index.html มี script xlsx และเปิดเน็ตได้)");
     return false;
   }
   return true;
@@ -354,7 +386,8 @@ function historyItemToRow(it){
     "ตัดได้ไหม": it.mode === "normal" ? "" : (it.canCut ? "ได้" : "ไม่ได้"),
     "เงินตัดธรรมดา": it.mode === "normal" ? (it.cashOutNormal ?? "") : "",
     "เงินรับ(ลดยอด/เพิ่มยอด)": it.mode !== "normal" ? (it.cashOutNew ?? "") : "",
-    "ข้อความที่คัดลอก": it.copiedText || ""
+    "ข้อความคัดลอก(สั้น)": it.copiedTextShort || "",
+    "ข้อความคัดลอก(ละเอียด)": it.copiedText || ""
   };
 }
 function exportXLSXAll(){
@@ -419,15 +452,13 @@ function renderHistory(){
     return `
       <details class="monthCard">
         <summary>
-          <span>${escapeHtml(thaiMonthLabel(mKey))}</span>
+          <span>📅 ${escapeHtml(thaiMonthLabel(mKey))}</span>
           <span class="monthMeta">${monthItems.length} รายการ</span>
         </summary>
 
         <div class="monthBody">
           <div class="itemButtons" style="margin-top:10px;">
-            <button class="smallBtn" type="button" data-action="export-month-xlsx" data-month="${escapeHtml(mKey)}">
-              ส่งออก Excel เดือนนี้
-            </button>
+            <button class="smallBtn" type="button" data-action="export-month-xlsx" data-month="${escapeHtml(mKey)}">📤 ส่งออก Excel เดือนนี้</button>
           </div>
 
           ${dateKeys.map((dKey) => {
@@ -435,7 +466,7 @@ function renderHistory(){
             return `
               <details class="dateCard">
                 <summary>
-                  <span>${escapeHtml(thaiDateLabel(dKey))}</span>
+                  <span>🗓️ ${escapeHtml(thaiDateLabel(dKey))}</span>
                   <span class="dateMeta">${dayItems.length} คน</span>
                 </summary>
                 <div class="dateBody">
@@ -458,33 +489,39 @@ function renderCustomerRow(item){
 
   let moneyLine = "";
   if(item.mode === "normal"){
-    moneyLine = `เงินตัด: ${fmt(item.cashOutNormal)} บาท`;
+    moneyLine = `💸 เงินตัด: ${fmt(item.cashOutNormal)} บาท`;
   } else {
-    moneyLine = `เงินรับ: ${fmt(item.cashOutNew)} บาท (${item.canCut ? "ตัดได้" : "ตัดไม่ได้"})`;
+    moneyLine = `💸 เงินรับ: ${fmt(item.cashOutNew)} บาท (${item.canCut ? "✅ ตัดได้" : "❌ ตัดไม่ได้"})`;
   }
+
+  // ข้อความสั้นโชว์/คัดลอกไว
+  const short = item.copiedTextShort || "";
 
   return `
     <div class="historyItem">
       <div class="itemTop">
         <div>
-          <div class="itemName">${escapeHtml(name)} — ${escapeHtml(modeTxt)}</div>
-          <div class="itemMeta">${escapeHtml(item.tsText || "")}</div>
+          <div class="itemName">👤 ${escapeHtml(name)} — ${escapeHtml(modeTxt)}</div>
+          <div class="itemMeta">⏱️ ${escapeHtml(item.tsText || "")}</div>
         </div>
         <div class="itemMeta">
-          ยอดเดิม ${fmt(item.oldP)} | ส่งแล้ว ${item.daysPaid} วัน | ยอดค้าง ${fmt(item.owedAmount)}
+          🧾 ยอดเดิม ${fmt(item.oldP)} | 📅 ส่งแล้ว ${item.daysPaid} วัน | ⏳ ยอดค้าง ${fmt(item.owedAmount)}
         </div>
       </div>
 
       <div><b>${escapeHtml(moneyLine)}</b></div>
 
-      <details style="margin-top:8px;">
-        <summary class="copySummary">ดูข้อความที่คัดลอก</summary>
+      ${short ? `<div class="itemMeta" style="margin-top:6px;">📋 ข้อความสั้น: <b>${escapeHtml(short)}</b></div>` : ``}
+
+      <details style="margin-top:10px;">
+        <summary class="copySummary">📄 ดูข้อความละเอียดที่บันทึก</summary>
         <div class="pre">${escapeHtml(item.copiedText || "")}</div>
       </details>
 
-      <div class="itemButtons" style="margin-top:10px;">
-        <button class="smallBtn" type="button" data-action="copy" data-id="${escapeHtml(item.id)}">คัดลอกอีกครั้ง</button>
-        <button class="smallBtn danger" type="button" data-action="delete" data-id="${escapeHtml(item.id)}">ลบรายการ</button>
+      <div class="itemButtons" style="margin-top:12px;">
+        <button class="smallBtn" type="button" data-action="copy-short" data-id="${escapeHtml(item.id)}">📋 คัดลอกสั้น</button>
+        <button class="smallBtn" type="button" data-action="copy" data-id="${escapeHtml(item.id)}">🧾 คัดลอกละเอียด</button>
+        <button class="smallBtn danger" type="button" data-action="delete" data-id="${escapeHtml(item.id)}">🗑️ ลบรายการ</button>
       </div>
     </div>
   `;
@@ -503,31 +540,50 @@ function onHistoryClick(e){
   }
 
   const id = btn.getAttribute("data-id");
-  const item = loadHistory().find(x => String(x.id) === String(id));
-  if(!item) return;
 
   if(action === "delete"){
     deleteHistoryItem(id);
     return;
   }
 
-  if(action === "copy"){
-    writeClipboard(item.copiedText || "")
+  const item = loadHistory().find(x => String(x.id) === String(id));
+  if(!item) return;
+
+  // ✅ คัดลอกสั้น
+  if(action === "copy-short"){
+    writeClipboard(item.copiedTextShort || item.copiedText || "")
       .then(()=>{
         const old = btn.textContent;
-        btn.textContent = "คัดลอกแล้ว ✅";
+        btn.textContent = "✅ คัดลอกแล้ว";
         setTimeout(()=> btn.textContent = old, 1200);
       })
       .catch(()=>{
         const old = btn.textContent;
-        btn.textContent = "คัดลอกไม่ได้ ❌";
+        btn.textContent = "❌ ไม่สำเร็จ";
+        setTimeout(()=> btn.textContent = old, 1500);
+      });
+    return;
+  }
+
+  // ✅ คัดลอกละเอียด
+  if(action === "copy"){
+    writeClipboard(item.copiedText || "")
+      .then(()=>{
+        const old = btn.textContent;
+        btn.textContent = "✅ คัดลอกแล้ว";
+        setTimeout(()=> btn.textContent = old, 1200);
+      })
+      .catch(()=>{
+        const old = btn.textContent;
+        btn.textContent = "❌ ไม่สำเร็จ";
         setTimeout(()=> btn.textContent = old, 1500);
       });
   }
 }
 
 // ===== Theme (Dark mode) =====
-const THEME_KEY = "ui_theme_v1";
+const THEME_KEY = "ui_theme_v1"; // "dark" | "light" | "auto"
+
 function applyTheme(t){
   document.body.classList.remove("theme-dark","theme-light");
   if(t === "dark") document.body.classList.add("theme-dark");
@@ -554,6 +610,7 @@ function saveTheme(v){
 }
 
 // ===== One-press delete = clear whole field (มือถือ + คอม) =====
+// ✅ ฟีเจอร์นี้อยู่ครบ ไม่ลบทิ้ง
 function enableOnePressDeleteClear(){
   const ids = ["oldPrincipal","daysPaid","newPrincipal"];
 
@@ -606,7 +663,7 @@ function enableOnePressDeleteClear(){
   });
 }
 
-// ===== Wire (ผูก event แค่รอบเดียว) =====
+// ===== Wire (ผูก event แค่ครั้งเดียว) =====
 function wire(){
   $("nav_calc")?.addEventListener("click", () => setPage("calc"));
   $("nav_history")?.addEventListener("click", () => setPage("history"));
@@ -634,8 +691,10 @@ function wire(){
   // ชื่อลูกค้า
   $("customerName")?.addEventListener("input", recalc);
 
+  // copy
   $("copyBtn")?.addEventListener("click", copyResult);
 
+  // history buttons
   $("clearHistoryBtn")?.addEventListener("click", () => {
     const ok = confirm("ล้างประวัติทั้งหมดใช่ไหม?");
     if(ok) clearHistory();
@@ -654,7 +713,7 @@ function wire(){
   });
   applyTheme(loadTheme());
 
-  // One-press delete
+  // ✅ One-press delete
   enableOnePressDeleteClear();
 }
 
@@ -665,4 +724,3 @@ setPage("calc");
 setMode("normal");
 clampDaysPaidLive();
 recalc();
-
