@@ -478,7 +478,7 @@ function renderCustomerRow(item){
       <div><b>${escapeHtml(moneyLine)}</b></div>
 
       <details style="margin-top:8px;">
-        <summary class="itemMeta" style="cursor:pointer;">ดูข้อความที่คัดลอก</summary>
+        <summary class="copySummary">ดูข้อความที่คัดลอก</summary>
         <div class="pre">${escapeHtml(item.copiedText || "")}</div>
       </details>
 
@@ -665,3 +665,4 @@ setPage("calc");
 setMode("normal");
 clampDaysPaidLive();
 recalc();
+
