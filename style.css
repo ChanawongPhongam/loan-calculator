@@ -656,4 +656,94 @@ details > .dateBody{
   }
 }
 
+/* =========================================
+   iPad Layout (Pro)
+   วางท้าย style.css
+========================================= */
+
+/* iPad + Tablet: ปรับความกว้าง container */
+@media (min-width: 768px) and (max-width: 1180px){
+  :root{
+    --max: 1100px;
+  }
+
+  .wrap{
+    padding: 0 22px;
+  }
+
+  h1{
+    font-size: 22px;
+  }
+
+  .sub{
+    font-size: 14px;
+  }
+
+  /* ปุ่มใหญ่ขึ้น กดง่าย */
+  .btn, .navBtn{
+    min-height: 48px;
+    font-size: 15px;
+  }
+
+  /* input/read ใหญ่ขึ้นนิด */
+  input, textarea{
+    min-height: 46px;
+    font-size: 16px;
+  }
+  .read{
+    min-height: 46px;
+    font-size: 15px;
+  }
+}
+
+/* iPad (landscape/กว้าง): จัด 2 คอลัมน์ ฟอร์ม/ผลลัพธ์ */
+@media (min-width: 900px){
+  /* ให้หน้า calc กลายเป็น grid */
+  #page_calc{
+    display: grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  /* ให้การ์ดผลลัพธ์ sticky อยู่ขวา */
+  #page_calc .card.mt12:last-of-type{
+    position: sticky;
+    top: calc(12px + env(safe-area-inset-top));
+  }
+
+  /* toolbar + nav ให้กินเต็มแถว */
+  .nav, .toolbar, .row{
+    grid-column: 1 / -1;
+  }
+
+  /* การ์ดข้อมูลเดิม + ข้อมูลยอดใหม่อยู่ซ้าย */
+  #page_calc .card:not(.mt12){
+    grid-column: 1 / 2;
+  }
+
+  /* การ์ดผลลัพธ์อยู่ขวา */
+  #page_calc .card.mt12{
+    grid-column: 2 / 3;
+  }
+
+  /* grid ในการ์ดให้เป็น 2 คอลัมน์บน iPad ดูไม่แน่น */
+  .grid{
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+}
+
+/* iPad History: ทำให้ card ไม่แคบ + จัด spacing */
+@media (min-width: 768px){
+  .historyItem{
+    padding: 16px 18px;
+  }
+  .itemTop{
+    flex-wrap: nowrap;
+  }
+  .pre{
+    font-size: 14px;
+  }
+}
+
 
