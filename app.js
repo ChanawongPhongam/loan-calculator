@@ -608,11 +608,45 @@ function saveTheme(v){
   try{ localStorage.setItem(THEME_KEY, v); }catch{}
 }
 
+// ===== One-press delete clears whole field (numeric inputs) =====
+function enableOnePressDeleteClear(){
+  // เลือกเฉพาะช่องตัวเลข (ไม่รวมชื่อลูกค้า)
+  const ids = ["oldPrincipal", "daysPaid", "newPrincipal"];
+
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+
+    // คอมพิวเตอร์: Backspace/Delete
+    el.addEventListener("keydown", (e) => {
+      if(e.key === "Backspace" || e.key === "Delete"){
+        e.preventDefault();
+        el.value = "";
+        el.dispatchEvent(new Event("input")); // ให้ recalc ทำงานทันที
+      }
+    });
+
+    // มือถือ (iOS/Android): beforeinput จะจับการลบจากคีย์บอร์ดมือถือได้ดี
+    el.addEventListener("beforeinput", (e) => {
+      const t = e.inputType;
+      if(t === "deleteContentBackward" || t === "deleteContentForward"){
+        e.preventDefault();
+        el.value = "";
+        el.dispatchEvent(new Event("input"));
+      }
+    });
+  });
+}
+
+// เรียกใช้งาน
+enableOnePressDeleteClear();
+
 
 // Start
 updateHistoryCount();
 setPage("calc");
 setMode("normal");
 recalc();
+
 
 
