@@ -574,3 +574,12 @@ body.theme-dark .pre{
   }
 }
 
+.warn{
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #dc2626;
+  line-height: 1.35;
+  min-height: 16px;
+}
+
