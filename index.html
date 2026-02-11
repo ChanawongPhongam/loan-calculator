@@ -7,18 +7,14 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <title>เครื่องคำนวณตัดเงินกู้รายวัน (100 ละ 20 / 24 วัน)</title>
+  <title>เครื่องคำนวณตัดเงินกู้รายวัน</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <div class="wrap">
-    <h1>เครื่องคำนวณ “ตัดเงินกู้รายวัน” (100 ละ 20 / 24 วัน)</h1>
-    <p class="sub">
-      สูตร: งวด/วัน = ยอด÷20, รับจริง = 90%, ยอดค้าง = (24-วันส่ง)×งวดเดิม/วัน
-      <br>ตัดธรรมดา: เงินตัด = รับจริงเดิม − ยอดค้าง | ลดยอด/เพิ่มยอด: เงินได้ = รับจริงยอดใหม่ − ยอดค้าง
-    </p>
+    <h1>เครื่องคำนวณตัดเงินกู้รายวัน</h1>
 
-    <!-- NAV BAR (2 หน้า) -->
+    <!-- NAV -->
     <div class="nav">
       <button id="nav_calc" class="navBtn active" type="button">คำนวณ</button>
       <button id="nav_history" class="navBtn" type="button">
@@ -26,8 +22,10 @@
       </button>
     </div>
 
-    <!-- PAGE: CALCULATOR -->
+    <!-- PAGE: CALC -->
     <section id="page_calc">
+
+      <!-- TOOLBAR -->
       <div class="toolbar">
         <label class="toolField">
           <div class="lbl">ชื่อลูกค้า</div>
@@ -36,18 +34,40 @@
 
         <div class="toolButtons">
           <button id="copyBtn" class="btn copy" type="button">คัดลอกผลลัพธ์</button>
-          <button id="themeToggle" class="btn" type="button" aria-label="สลับโหมดสี">🌙</button>
-          <div id="copyStatus" class="status" aria-live="polite"></div>
+          <button id="themeToggle" class="btn" type="button">🌙</button>
+          <div id="copyStatus" class="status"></div>
         </div>
       </div>
 
+      <!-- MODE -->
       <div class="row">
         <button id="m_normal" class="btn active" type="button">ตัดธรรมดา</button>
         <button id="m_reduce" class="btn" type="button">ตัดลดยอด</button>
         <button id="m_increase" class="btn" type="button">เพิ่มยอด</button>
       </div>
 
-      <div class="card">
+      <!-- ⭐ ผลลัพธ์ ย้ายขึ้นบนสุด -->
+      <div class="card mt12 resultTop">
+        <h3 class="cardTitle">ผลลัพธ์</h3>
+
+        <div id="normalResult">
+          <div class="resultLine">
+            เงินตัดให้ลูกค้า = <b id="cashOutNormal">-</b>
+          </div>
+        </div>
+
+        <div id="newResult" class="hidden">
+          <div class="resultLine">
+            ตัดได้ไหม: <span id="canCut">-</span>
+          </div>
+          <div class="resultLine">
+            เงินที่ลูกค้าได้รับ = <b id="cashOutNew">-</b>
+          </div>
+        </div>
+      </div>
+
+      <!-- ข้อมูลเดิม -->
+      <div class="card mt12">
         <h3 class="cardTitle">ข้อมูลเดิม</h3>
         <div class="grid">
           <label>
@@ -56,7 +76,7 @@
           </label>
 
           <label>
-            <div class="lbl">ส่งมาแล้ว (วัน) 0–24</div>
+            <div class="lbl">ส่งมาแล้ว (วัน)</div>
             <input id="daysPaid" value="10" inputmode="numeric" />
           </label>
 
@@ -66,7 +86,7 @@
           </div>
 
           <div>
-            <div class="lbl">รับจริงเดิม (90%)</div>
+            <div class="lbl">รับจริงเดิม</div>
             <div class="read" id="receiveOld">-</div>
           </div>
 
@@ -82,16 +102,17 @@
         </div>
       </div>
 
+      <!-- ยอดใหม่ -->
       <div id="newBox" class="card mt12 hidden">
-        <h3 class="cardTitle" id="newTitle">ข้อมูลยอดใหม่</h3>
+        <h3 class="cardTitle">ข้อมูลยอดใหม่</h3>
         <div class="grid">
           <label>
-            <div class="lbl">ยอดใหม่ที่ต้องการ (บาท)</div>
+            <div class="lbl">ยอดใหม่</div>
             <input id="newPrincipal" value="80000" inputmode="numeric" />
           </label>
 
           <div>
-            <div class="lbl">รับจริงยอดใหม่ (90%)</div>
+            <div class="lbl">รับจริงยอดใหม่</div>
             <div class="read" id="receiveNew">-</div>
           </div>
 
@@ -101,66 +122,25 @@
           </div>
 
           <div>
-            <div class="lbl">ขั้นต่ำยอดใหม่ที่ “ตัดได้”</div>
+            <div class="lbl">ขั้นต่ำยอดใหม่ที่ตัดได้</div>
             <div class="read" id="minNewPrincipal">-</div>
           </div>
         </div>
       </div>
 
-      <div class="card mt12">
-        <h3 class="cardTitle">ผลลัพธ์</h3>
-
-        <div id="normalResult">
-          <div class="resultLine">
-            เงินตัดให้ลูกค้า = รับจริงเดิม − ยอดค้าง = <b id="cashOutNormal">-</b>
-          </div>
-          <div class="hint">
-            ถ้าติดลบ แปลว่า “ยังตัดธรรมดาไม่ได้” (ยอดค้างมากกว่ารับจริงเดิม)
-          </div>
-        </div>
-
-        <div id="newResult" class="hidden">
-          <div class="resultLine">ตัดได้ไหม: <span id="canCut">-</span></div>
-          <div class="resultLine">
-            เงินที่ลูกค้าได้รับ = รับจริงยอดใหม่ − ยอดค้างเดิม = <b id="cashOutNew">-</b>
-          </div>
-          <div class="hint">
-            ถ้าติดลบ = ตัดไม่ได้ (ต้องเพิ่ม “ยอดใหม่” ให้ถึงขั้นต่ำ หรือส่งวันให้มากขึ้นเพื่อลดยอดค้าง)
-          </div>
-        </div>
-
-        <div class="topnote">
-          หมายเหตุ: หลัง “ตัด” แล้วระบบของคุณคือเริ่มนับสัญญาใหม่ <b>1/24 วัน</b> ทันที
-        </div>
-      </div>
     </section>
 
-    <!-- PAGE: HISTORY -->
+    <!-- PAGE HISTORY -->
     <section id="page_history" class="hidden">
       <div class="card">
-        <div class="historyHeader">
-          <h3 class="cardTitle" style="margin:0;">ประวัติ</h3>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <!-- ปุ่มนี้จะทำงานเมื่อเราใส่ JS หน้าถัดไป -->
-            <button id="exportXlsxAllBtn" class="btn" type="button">ส่งออก Excel (ทั้งหมด)</button>
-            <button id="clearHistoryBtn" class="btn danger" type="button">ล้างทั้งหมด</button>
-          </div>
-        </div>
-
-        <div class="hint" style="margin-top:8px;">
-          หมายเหตุ: ส่งออกเป็นไฟล์ <b>.xlsx</b> (เปิดใน Excel ได้) — ปุ่มจะเริ่มทำงานหลังใส่ JS หน้า export
-        </div>
-
-        <div id="historyList" class="historyList" style="margin-top:12px;"></div>
+        <h3 class="cardTitle">ประวัติ</h3>
+        <div id="historyList" class="historyList"></div>
       </div>
     </section>
+
   </div>
 
-  <!-- ✅ SheetJS (XLSX) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-  <!-- app -->
   <script src="./app.js"></script>
 </body>
 </html>
-
