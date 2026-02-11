@@ -566,3 +566,11 @@ body.theme-dark .pre{
 }
 
 
+@media (max-width: 540px){
+  .resultTop{
+    position: sticky;
+    top: 10px;
+    z-index: 20;
+  }
+}
+
