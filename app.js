@@ -715,7 +715,148 @@ function wire(){
 
   // ✅ One-press delete
   enableOnePressDeleteClear();
+
+  // ✅ Operator shortcuts (Enter/Tab)
+  enableOperatorShortcuts();
+
 }
+
+// ===== Keyboard Shortcuts (Operator) =====
+// Normal mode: Enter สลับไป-กลับแค่ 2 ช่อง: ยอดเดิม <-> ส่งมาแล้ว(วัน)
+// Reduce/Increase: Tab/Shift+Tab วนอยู่ในช่องที่เกี่ยวข้อง ไม่กระโดดไปลิงก์/ปุ่มอื่น
+function enableOperatorShortcuts(){
+  const oldEl = document.getElementById("oldPrincipal");
+  const daysEl = document.getElementById("daysPaid");
+  const newEl = document.getElementById("newPrincipal");
+
+  if(!oldEl || !daysEl) return;
+
+  // helper: focus แบบปลอดภัย
+  function focusEl(el){
+    if(!el) return;
+    el.focus({ preventScroll: true });
+    // select ทั้งช่องให้พิมพ์ทับง่าย (ช่วยใช้ทั้งวัน)
+    try{ el.select(); }catch{}
+  }
+
+  // === 1) NORMAL MODE: Enter toggle old <-> days ===
+  function onEnterToggle(e){
+    if(e.key !== "Enter") return;
+    if(mode !== "normal") return; // ใช้เฉพาะตัดธรรมดา
+    const t = e.target;
+
+    if(t === oldEl){
+      e.preventDefault();
+      focusEl(daysEl);
+    } else if(t === daysEl){
+      e.preventDefault();
+      focusEl(oldEl);
+    }
+  }
+
+  oldEl.addEventListener("keydown", onEnterToggle);
+  daysEl.addEventListener("keydown", onEnterToggle);
+
+  // === 2) REDUCE/INCREASE: Trap Tab ให้วนเฉพาะช่องที่เกี่ยวข้อง ===
+  function getTabOrder(){
+    // โหมดลดยอด/เพิ่มยอด -> ให้ tab วนเฉพาะ old/days/new (ไม่กระโดดไปปุ่ม/ลิงก์)
+    if(mode === "reduce" || mode === "increase"){
+      return [oldEl, daysEl, newEl].filter(Boolean);
+    }
+    // โหมดธรรมดา ปล่อย tab ปกติ (เพราะคุณใช้ Enter สลับ 2 ช่องอยู่แล้ว)
+    return null;
+  }
+
+  function onTabTrap(e){
+    if(e.key !== "Tab") return;
+
+    const order = getTabOrder();
+    if(!order) return;
+
+    // เฉพาะตอนโฟกัสอยู่ในหนึ่งในช่องที่เราคุม
+    const idx = order.indexOf(e.target);
+    if(idx === -1) return;
+
+    // กัน “tab รัวๆ ไปมั่ว” -> เราคุมเอง
+    e.preventDefault();
+
+    const dir = e.shiftKey ? -1 : 1;
+    const next = (idx + dir + order.length) % order.length;
+    focusEl(order[next]);
+  }
+
+  // จับที่ช่องทั้งสาม (พอ)
+  oldEl.addEventListener("keydown", onTabTrap);
+  daysEl.addEventListener("keydown", onTabTrap);
+  if(newEl) newEl.addEventListener("keydown", onTabTrap);
+
+    // === 3) Global shortcuts: Ctrl/Cmd + Enter = Copy, Esc = Clear ===
+  function onGlobalShortcuts(e){
+    const isMac = navigator.platform.toUpperCase().includes("MAC");
+    const ctrlOrCmd = isMac ? e.metaKey : e.ctrlKey;
+
+    // Ctrl/Cmd + Enter => คัดลอกผลลัพธ์ (แบบสั้น ตามระบบใหม่)
+    if(ctrlOrCmd && e.key === "Enter"){
+      e.preventDefault();
+      // ใช้ฟังก์ชันเดิม ไม่กระทบสูตร/ประวัติ
+      copyResult();
+      return;
+    }
+
+    // Ctrl/Cmd + Shift + Enter => คัดลอก “ละเอียด” (ลงคลิปบอร์ดอย่างเดียว ไม่เพิ่มประวัติ)
+    if(ctrlOrCmd && e.shiftKey && e.key === "Enter"){
+      e.preventDefault();
+      if(!lastSnapshot) return;
+      writeClipboard(buildCopyText(lastSnapshot))
+        .then(()=>{
+          const s = document.getElementById("copyStatus");
+          if(s){
+            s.textContent = "🧾 คัดลอกแบบละเอียดแล้ว ✅";
+            setTimeout(()=> s.textContent = "", 1400);
+          }
+        })
+        .catch(()=>{});
+      return;
+    }
+
+    // Esc => ล้างฟอร์มเร็ว + โฟกัสกลับช่องยอดเดิม
+    if(e.key === "Escape"){
+      e.preventDefault();
+
+      const nameEl = document.getElementById("customerName");
+      const oldEl = document.getElementById("oldPrincipal");
+      const daysEl = document.getElementById("daysPaid");
+      const newEl  = document.getElementById("newPrincipal");
+
+      // ล้างค่า (คงโหมดเดิมไว้)
+      if(nameEl) nameEl.value = "";
+      if(oldEl) oldEl.value = "";
+      if(daysEl) daysEl.value = "";
+      if(newEl && (mode === "reduce" || mode === "increase")) newEl.value = "";
+
+      // เคลียร์เตือนวัน (ถ้ามี)
+      const w = document.getElementById("daysPaidWarn");
+      if(w) w.textContent = "";
+
+      // ให้คำนวณใหม่
+      recalc();
+
+      // โฟกัสกลับไปช่องยอดเดิม (ใช้บ่อยสุด)
+      if(oldEl){
+        oldEl.focus({ preventScroll:true });
+        try{ oldEl.select(); }catch{}
+      }
+    }
+  }
+
+  // ผูกครั้งเดียว (กันซ้ำ)
+  if(!window.__loan_shortcuts_bound){
+    window.__loan_shortcuts_bound = true;
+    window.addEventListener("keydown", onGlobalShortcuts, { passive: false });
+  }
+
+}
+
 
 // ===== Start =====
 updateHistoryCount();
@@ -724,4 +865,5 @@ setPage("calc");
 setMode("normal");
 clampDaysPaidLive();
 recalc();
+
 
