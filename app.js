@@ -72,7 +72,7 @@ function normalizeNumericInput(el){
 }
 function setDaysPaidWarn(msg){
   const w = $("daysPaidWarn");
-  if(!w) return; // ถ้า index.html ไม่ได้ใส่ ก็ไม่พัง แค่ไม่โชว์
+  if(!w) return;
   w.textContent = msg || "";
 }
 function clampDaysPaidLive(){
@@ -187,7 +187,6 @@ function recalc(){
   $("daysOwed") && ($("daysOwed").textContent = `${daysOwed} วัน`);
   $("owedAmount") && ($("owedAmount").textContent = `${fmt(owedAmount)} บาท`);
 
-  // ✅ โหมดธรรมดา: ถ้าติดลบให้โชว์เตือน
   if($("cashOutNormal")){
     if(cashOutNormal < 0){
       $("cashOutNormal").innerHTML = `<span class="no">❌ ตัดไม่ได้ (${fmt(cashOutNormal)} บาท)</span>`;
@@ -249,22 +248,16 @@ function buildCopyText(s){
 // ===== Copy text (สั้นสำหรับส่งจริง) =====
 function buildCopyTextShort(s){
   const name = (s.customerName || "").trim() || "ไม่ใส่ชื่อ";
-
-  const modeEmoji =
-    s.mode === "normal" ? "✂️"
-    : s.mode === "reduce" ? "⬇️"
-    : "⬆️";
+  const modeEmoji = s.mode === "normal" ? "✂️" : (s.mode === "reduce" ? "⬇️" : "⬆️");
 
   const money = (s.mode === "normal") ? s.cashOutNormal : s.cashOutNew;
-  const ok =
-    (s.mode === "normal")
-      ? (s.cashOutNormal >= 0 ? "✅" : "❌")
-      : (s.canCut ? "✅" : "❌");
+  const ok = (s.mode === "normal")
+    ? (s.cashOutNormal >= 0 ? "✅" : "❌")
+    : (s.canCut ? "✅" : "❌");
 
   if(!Number.isFinite(money) || money < 0){
     return `👤${name} ${modeEmoji} ${ok} ตัดไม่ได้`;
   }
-
   return `👤${name} ${modeEmoji} 💸${fmt(money)} บาท`;
 }
 
@@ -324,8 +317,8 @@ function clearHistory(){
 async function copyResult(){
   if(!lastSnapshot) return;
 
-  const shortText = buildCopyTextShort(lastSnapshot);     // คัดลอกจริง
-  const detailedText = buildCopyText(lastSnapshot);       // เก็บในประวัติ
+  const shortText = buildCopyTextShort(lastSnapshot);
+  const detailedText = buildCopyText(lastSnapshot);
 
   const statusEl = $("copyStatus");
 
@@ -345,10 +338,8 @@ async function copyResult(){
       canCut: lastSnapshot.canCut,
       cashOutNormal: lastSnapshot.cashOutNormal,
       cashOutNew: lastSnapshot.cashOutNew,
-
-      // ✅ เก็บ 2 แบบ
-      copiedText: detailedText,       // รายละเอียด
-      copiedTextShort: shortText      // สั้น
+      copiedText: detailedText,
+      copiedTextShort: shortText
     });
 
     if(statusEl){
@@ -366,7 +357,7 @@ async function copyResult(){
 // ===== XLSX Export =====
 function ensureXLSX(){
   if(typeof XLSX === "undefined"){
-    alert("ยังโหลดไลบรารี XLSX ไม่สำเร็จ (เช็คว่า index.html มี script xlsx และเปิดเน็ตได้)");
+    alert("ยังโหลดไลบรารี XLSX ไม่สำเร็จ (เช็ค index.html มี script xlsx และเปิดเน็ตได้)");
     return false;
   }
   return true;
@@ -425,7 +416,7 @@ function renderHistory(){
   if(!list) return;
 
   if(!all.length){
-    list.innerHTML = `<div class="hint">ยังไม่มีประวัติ (จะบันทึกเมื่อกด “คัดลอกผลลัพธ์”)</div>`;
+    list.innerHTML = `<div class="hint">ยังไม่มีประวัติ (จะบันทึกเมื่อกด “คัดลอกผลลัพธ์”) 🗂️</div>`;
     updateHistoryCount();
     return;
   }
@@ -494,7 +485,6 @@ function renderCustomerRow(item){
     moneyLine = `💸 เงินรับ: ${fmt(item.cashOutNew)} บาท (${item.canCut ? "✅ ตัดได้" : "❌ ตัดไม่ได้"})`;
   }
 
-  // ข้อความสั้นโชว์/คัดลอกไว
   const short = item.copiedTextShort || "";
 
   return `
@@ -549,7 +539,6 @@ function onHistoryClick(e){
   const item = loadHistory().find(x => String(x.id) === String(id));
   if(!item) return;
 
-  // ✅ คัดลอกสั้น
   if(action === "copy-short"){
     writeClipboard(item.copiedTextShort || item.copiedText || "")
       .then(()=>{
@@ -565,7 +554,6 @@ function onHistoryClick(e){
     return;
   }
 
-  // ✅ คัดลอกละเอียด
   if(action === "copy"){
     writeClipboard(item.copiedText || "")
       .then(()=>{
@@ -610,7 +598,6 @@ function saveTheme(v){
 }
 
 // ===== One-press delete = clear whole field (มือถือ + คอม) =====
-// ✅ ฟีเจอร์นี้อยู่ครบ ไม่ลบทิ้ง
 function enableOnePressDeleteClear(){
   const ids = ["oldPrincipal","daysPaid","newPrincipal"];
 
@@ -633,7 +620,6 @@ function enableOnePressDeleteClear(){
     el.addEventListener("focus", () => { prev = el.value || ""; });
     el.addEventListener("click", () => { prev = el.value || ""; });
 
-    // คอม
     el.addEventListener("keydown", (e) => {
       if(e.key === "Backspace" || e.key === "Delete"){
         e.preventDefault();
@@ -641,7 +627,6 @@ function enableOnePressDeleteClear(){
       }
     });
 
-    // มือถือ
     el.addEventListener("beforeinput", (e) => {
       if(e.inputType && e.inputType.includes("delete")){
         e.preventDefault();
@@ -649,7 +634,6 @@ function enableOnePressDeleteClear(){
       }
     });
 
-    // fallback มือถือบางรุ่น
     el.addEventListener("input", (e) => {
       if(clearing) return;
       const cur = el.value || "";
@@ -661,6 +645,128 @@ function enableOnePressDeleteClear(){
       prev = cur;
     });
   });
+}
+
+// ===== Keyboard Shortcuts (Operator) =====
+// Normal mode: Enter สลับไป-กลับแค่ 2 ช่อง: ยอดเดิม <-> ส่งมาแล้ว(วัน)
+// Reduce/Increase: Tab/Shift+Tab วนอยู่ในช่องที่เกี่ยวข้อง ไม่กระโดดไปลิงก์/ปุ่มอื่น
+// + Ctrl/Cmd+Enter: copy สั้น (เหมือนกดปุ่มคัดลอก) / Ctrl/Cmd+Shift+Enter: copy ละเอียด / Esc: ล้างฟอร์ม
+function enableOperatorShortcuts(){
+  const oldEl = $("oldPrincipal");
+  const daysEl = $("daysPaid");
+  const newEl = $("newPrincipal");
+
+  if(!oldEl || !daysEl) return;
+
+  function focusEl(el){
+    if(!el) return;
+    el.focus({ preventScroll:true });
+    try{ el.select(); }catch{}
+  }
+
+  // 1) NORMAL MODE: Enter toggle old <-> days
+  function onEnterToggle(e){
+    if(e.key !== "Enter") return;
+    if(e.ctrlKey || e.metaKey || e.shiftKey) return; // กันชนกับ shortcut copy
+    if(mode !== "normal") return;
+
+    if(e.target === oldEl){
+      e.preventDefault();
+      focusEl(daysEl);
+    } else if(e.target === daysEl){
+      e.preventDefault();
+      focusEl(oldEl);
+    }
+  }
+
+  oldEl.addEventListener("keydown", onEnterToggle);
+  daysEl.addEventListener("keydown", onEnterToggle);
+
+  // 2) Reduce/Increase: trap Tab within [old, days, new]
+  function getTabOrder(){
+    if(mode === "reduce" || mode === "increase"){
+      return [oldEl, daysEl, newEl].filter(Boolean);
+    }
+    return null;
+  }
+
+  function onTabTrap(e){
+    if(e.key !== "Tab") return;
+
+    const order = getTabOrder();
+    if(!order) return;
+
+    const idx = order.indexOf(e.target);
+    if(idx === -1) return;
+
+    e.preventDefault();
+
+    const dir = e.shiftKey ? -1 : 1;
+    const next = (idx + dir + order.length) % order.length;
+    focusEl(order[next]);
+  }
+
+  oldEl.addEventListener("keydown", onTabTrap);
+  daysEl.addEventListener("keydown", onTabTrap);
+  newEl && newEl.addEventListener("keydown", onTabTrap);
+
+  // 3) Global shortcuts: Ctrl/Cmd+Enter copy, Esc clear
+  function onGlobalShortcuts(e){
+    const ctrlOrCmd = e.ctrlKey || e.metaKey;
+
+    // Ctrl/Cmd + Shift + Enter => copy detailed ONLY (no history add)
+    if(ctrlOrCmd && e.shiftKey && e.key === "Enter"){
+      e.preventDefault();
+      if(!lastSnapshot) return;
+      writeClipboard(buildCopyText(lastSnapshot))
+        .then(()=>{
+          const s = $("copyStatus");
+          if(s){
+            s.textContent = "🧾 คัดลอกแบบละเอียดแล้ว ✅";
+            setTimeout(()=> s.textContent = "", 1400);
+          }
+        })
+        .catch(()=>{});
+      return;
+    }
+
+    // Ctrl/Cmd + Enter => copy short + save history
+    if(ctrlOrCmd && e.key === "Enter"){
+      e.preventDefault();
+      copyResult();
+      return;
+    }
+
+    // Esc => clear form + focus old
+    if(e.key === "Escape"){
+      e.preventDefault();
+
+      const nameEl2 = $("customerName");
+      const oldEl2  = $("oldPrincipal");
+      const daysEl2 = $("daysPaid");
+      const newEl2  = $("newPrincipal");
+
+      if(nameEl2) nameEl2.value = "";
+      if(oldEl2) oldEl2.value = "";
+      if(daysEl2) daysEl2.value = "";
+      if(newEl2 && (mode === "reduce" || mode === "increase")) newEl2.value = "";
+
+      const w = $("daysPaidWarn");
+      if(w) w.textContent = "";
+
+      recalc();
+
+      if(oldEl2){
+        oldEl2.focus({ preventScroll:true });
+        try{ oldEl2.select(); }catch{}
+      }
+    }
+  }
+
+  if(!window.__loan_shortcuts_bound){
+    window.__loan_shortcuts_bound = true;
+    window.addEventListener("keydown", onGlobalShortcuts, { passive:false });
+  }
 }
 
 // ===== Wire (ผูก event แค่ครั้งเดียว) =====
@@ -682,8 +788,7 @@ function wire(){
   });
 
   // clamp daysPaid 0–24 + เตือน
-  const dp = $("daysPaid");
-  dp?.addEventListener("input", () => {
+  $("daysPaid")?.addEventListener("input", () => {
     clampDaysPaidLive();
     recalc();
   });
@@ -691,10 +796,10 @@ function wire(){
   // ชื่อลูกค้า
   $("customerName")?.addEventListener("input", recalc);
 
-  // copy
+  // copy button
   $("copyBtn")?.addEventListener("click", copyResult);
 
-  // history buttons
+  // history actions
   $("clearHistoryBtn")?.addEventListener("click", () => {
     const ok = confirm("ล้างประวัติทั้งหมดใช่ไหม?");
     if(ok) clearHistory();
@@ -713,150 +818,12 @@ function wire(){
   });
   applyTheme(loadTheme());
 
-  // ✅ One-press delete
+  // One-press delete
   enableOnePressDeleteClear();
 
-  // ✅ Operator shortcuts (Enter/Tab)
+  // Operator shortcuts
   enableOperatorShortcuts();
-
 }
-
-// ===== Keyboard Shortcuts (Operator) =====
-// Normal mode: Enter สลับไป-กลับแค่ 2 ช่อง: ยอดเดิม <-> ส่งมาแล้ว(วัน)
-// Reduce/Increase: Tab/Shift+Tab วนอยู่ในช่องที่เกี่ยวข้อง ไม่กระโดดไปลิงก์/ปุ่มอื่น
-function enableOperatorShortcuts(){
-  const oldEl = document.getElementById("oldPrincipal");
-  const daysEl = document.getElementById("daysPaid");
-  const newEl = document.getElementById("newPrincipal");
-
-  if(!oldEl || !daysEl) return;
-
-  // helper: focus แบบปลอดภัย
-  function focusEl(el){
-    if(!el) return;
-    el.focus({ preventScroll: true });
-    // select ทั้งช่องให้พิมพ์ทับง่าย (ช่วยใช้ทั้งวัน)
-    try{ el.select(); }catch{}
-  }
-
-  // === 1) NORMAL MODE: Enter toggle old <-> days ===
-  function onEnterToggle(e){
-    if(e.key !== "Enter") return;
-    if(mode !== "normal") return; // ใช้เฉพาะตัดธรรมดา
-    const t = e.target;
-
-    if(t === oldEl){
-      e.preventDefault();
-      focusEl(daysEl);
-    } else if(t === daysEl){
-      e.preventDefault();
-      focusEl(oldEl);
-    }
-  }
-
-  oldEl.addEventListener("keydown", onEnterToggle);
-  daysEl.addEventListener("keydown", onEnterToggle);
-
-  // === 2) REDUCE/INCREASE: Trap Tab ให้วนเฉพาะช่องที่เกี่ยวข้อง ===
-  function getTabOrder(){
-    // โหมดลดยอด/เพิ่มยอด -> ให้ tab วนเฉพาะ old/days/new (ไม่กระโดดไปปุ่ม/ลิงก์)
-    if(mode === "reduce" || mode === "increase"){
-      return [oldEl, daysEl, newEl].filter(Boolean);
-    }
-    // โหมดธรรมดา ปล่อย tab ปกติ (เพราะคุณใช้ Enter สลับ 2 ช่องอยู่แล้ว)
-    return null;
-  }
-
-  function onTabTrap(e){
-    if(e.key !== "Tab") return;
-
-    const order = getTabOrder();
-    if(!order) return;
-
-    // เฉพาะตอนโฟกัสอยู่ในหนึ่งในช่องที่เราคุม
-    const idx = order.indexOf(e.target);
-    if(idx === -1) return;
-
-    // กัน “tab รัวๆ ไปมั่ว” -> เราคุมเอง
-    e.preventDefault();
-
-    const dir = e.shiftKey ? -1 : 1;
-    const next = (idx + dir + order.length) % order.length;
-    focusEl(order[next]);
-  }
-
-  // จับที่ช่องทั้งสาม (พอ)
-  oldEl.addEventListener("keydown", onTabTrap);
-  daysEl.addEventListener("keydown", onTabTrap);
-  if(newEl) newEl.addEventListener("keydown", onTabTrap);
-
-    // === 3) Global shortcuts: Ctrl/Cmd + Enter = Copy, Esc = Clear ===
-  function onGlobalShortcuts(e){
-    const isMac = navigator.platform.toUpperCase().includes("MAC");
-    const ctrlOrCmd = isMac ? e.metaKey : e.ctrlKey;
-
-    // Ctrl/Cmd + Enter => คัดลอกผลลัพธ์ (แบบสั้น ตามระบบใหม่)
-    if(ctrlOrCmd && e.key === "Enter"){
-      e.preventDefault();
-      // ใช้ฟังก์ชันเดิม ไม่กระทบสูตร/ประวัติ
-      copyResult();
-      return;
-    }
-
-    // Ctrl/Cmd + Shift + Enter => คัดลอก “ละเอียด” (ลงคลิปบอร์ดอย่างเดียว ไม่เพิ่มประวัติ)
-    if(ctrlOrCmd && e.shiftKey && e.key === "Enter"){
-      e.preventDefault();
-      if(!lastSnapshot) return;
-      writeClipboard(buildCopyText(lastSnapshot))
-        .then(()=>{
-          const s = document.getElementById("copyStatus");
-          if(s){
-            s.textContent = "🧾 คัดลอกแบบละเอียดแล้ว ✅";
-            setTimeout(()=> s.textContent = "", 1400);
-          }
-        })
-        .catch(()=>{});
-      return;
-    }
-
-    // Esc => ล้างฟอร์มเร็ว + โฟกัสกลับช่องยอดเดิม
-    if(e.key === "Escape"){
-      e.preventDefault();
-
-      const nameEl = document.getElementById("customerName");
-      const oldEl = document.getElementById("oldPrincipal");
-      const daysEl = document.getElementById("daysPaid");
-      const newEl  = document.getElementById("newPrincipal");
-
-      // ล้างค่า (คงโหมดเดิมไว้)
-      if(nameEl) nameEl.value = "";
-      if(oldEl) oldEl.value = "";
-      if(daysEl) daysEl.value = "";
-      if(newEl && (mode === "reduce" || mode === "increase")) newEl.value = "";
-
-      // เคลียร์เตือนวัน (ถ้ามี)
-      const w = document.getElementById("daysPaidWarn");
-      if(w) w.textContent = "";
-
-      // ให้คำนวณใหม่
-      recalc();
-
-      // โฟกัสกลับไปช่องยอดเดิม (ใช้บ่อยสุด)
-      if(oldEl){
-        oldEl.focus({ preventScroll:true });
-        try{ oldEl.select(); }catch{}
-      }
-    }
-  }
-
-  // ผูกครั้งเดียว (กันซ้ำ)
-  if(!window.__loan_shortcuts_bound){
-    window.__loan_shortcuts_bound = true;
-    window.addEventListener("keydown", onGlobalShortcuts, { passive: false });
-  }
-
-}
-
 
 // ===== Start =====
 updateHistoryCount();
@@ -865,5 +832,3 @@ setPage("calc");
 setMode("normal");
 clampDaysPaidLive();
 recalc();
-
-
