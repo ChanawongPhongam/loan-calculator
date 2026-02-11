@@ -61,29 +61,26 @@ function thaiDateLabel(ymdKey){
   return dt.toLocaleDateString("th-TH", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
 }
 
-// ===== Input normalize + daysPaid guard (เพิ่มใหม่) =====
+// ===== Input normalize + daysPaid guard =====
 function normalizeNumericInput(el){
   if(!el) return;
   let s = String(el.value ?? "");
-  s = s.replace(/[,\s]/g, "");     // ลบ , และช่องว่างทั้งหมด
-  s = s.replace(/[^\d-]/g, "");    // เอาเฉพาะเลขและเครื่องหมายลบ
-  s = s.replace(/(?!^)-/g, "");    // ไม่ให้มี - ซ้ำหลายตัว
+  s = s.replace(/[,\s]/g, "");     // ลบ , และช่องว่าง
+  s = s.replace(/[^\d-]/g, "");    // เอาเฉพาะเลขและ -
+  s = s.replace(/(?!^)-/g, "");    // ไม่ให้มี - หลายตัว
   el.value = s;
 }
-
 function setDaysPaidWarn(msg){
   const w = $("daysPaidWarn");
-  if(!w) return;          // ถ้า index.html ยังไม่ได้ใส่ที่เตือน ก็ไม่พัง แค่ไม่โชว์
+  if(!w) return; // ถ้า index.html ไม่ได้ใส่ ก็ไม่พัง แค่ไม่โชว์เตือน
   w.textContent = msg || "";
 }
-
 function clampDaysPaidLive(){
   const el = $("daysPaid");
   if(!el) return;
 
   normalizeNumericInput(el);
 
-  // ว่างไว้ก่อนตอนกำลังแก้
   if(String(el.value).trim() === ""){
     setDaysPaidWarn("");
     return;
@@ -157,17 +154,17 @@ function recalc(){
   if(mode !== "normal"){
     const lockMsg = checkModeLock(oldP, newP);
     if(lockMsg){
-      if($("canCut")) $("canCut").innerHTML = `<span class="no">ล็อก ❌</span>`;
-      if($("cashOutNew")) $("cashOutNew").textContent = "-";
-      if($("minNewPrincipal")) $("minNewPrincipal").textContent = "-";
-      if($("copyStatus")) $("copyStatus").textContent = lockMsg;
+      $("canCut") && ($("canCut").innerHTML = `<span class="no">ล็อก ❌</span>`);
+      $("cashOutNew") && ($("cashOutNew").textContent = "-");
+      $("minNewPrincipal") && ($("minNewPrincipal").textContent = "-");
+      $("copyStatus") && ($("copyStatus").textContent = lockMsg);
       lastSnapshot = null;
       return;
     } else {
-      if($("copyStatus")) $("copyStatus").textContent = "";
+      $("copyStatus") && ($("copyStatus").textContent = "");
     }
   } else {
-    if($("copyStatus")) $("copyStatus").textContent = "";
+    $("copyStatus") && ($("copyStatus").textContent = "");
   }
 
   const payPerDayOld = oldP > 0 ? oldP / UNIT_DIV : 0;
@@ -185,10 +182,10 @@ function recalc(){
 
   const minNewPrincipal = owedAmount > 0 ? Math.ceil(owedAmount / RECEIVE_RATE) : 0;
 
-  if($("payPerDayOld")) $("payPerDayOld").textContent = `${fmt(payPerDayOld)} บาท`;
-  if($("receiveOld")) $("receiveOld").textContent = `${fmt(receiveOld)} บาท`;
-  if($("daysOwed")) $("daysOwed").textContent = `${daysOwed} วัน`;
-  if($("owedAmount")) $("owedAmount").textContent = `${fmt(owedAmount)} บาท`;
+  $("payPerDayOld") && ($("payPerDayOld").textContent = `${fmt(payPerDayOld)} บาท`);
+  $("receiveOld") && ($("receiveOld").textContent = `${fmt(receiveOld)} บาท`);
+  $("daysOwed") && ($("daysOwed").textContent = `${daysOwed} วัน`);
+  $("owedAmount") && ($("owedAmount").textContent = `${fmt(owedAmount)} บาท`);
 
   // ✅ แสดงเตือนตัดไม่ได้ในโหมดธรรมดา
   if($("cashOutNormal")){
@@ -199,11 +196,11 @@ function recalc(){
     }
   }
 
-  if($("receiveNew")) $("receiveNew").textContent = `${fmt(receiveNew)} บาท`;
-  if($("payPerDayNew")) $("payPerDayNew").textContent = `${fmt(payPerDayNew)} บาท`;
-  if($("minNewPrincipal")) $("minNewPrincipal").textContent = `${fmt(minNewPrincipal)} บาท`;
-  if($("canCut")) $("canCut").innerHTML = canCut ? `<span class="ok">ได้ ✅</span>` : `<span class="no">ไม่ได้ ❌</span>`;
-  if($("cashOutNew")) $("cashOutNew").textContent = `${fmt(cashOutNew)} บาท`;
+  $("receiveNew") && ($("receiveNew").textContent = `${fmt(receiveNew)} บาท`);
+  $("payPerDayNew") && ($("payPerDayNew").textContent = `${fmt(payPerDayNew)} บาท`);
+  $("minNewPrincipal") && ($("minNewPrincipal").textContent = `${fmt(minNewPrincipal)} บาท`);
+  $("canCut") && ($("canCut").innerHTML = canCut ? `<span class="ok">ได้ ✅</span>` : `<span class="no">ไม่ได้ ❌</span>`);
+  $("cashOutNew") && ($("cashOutNew").textContent = `${fmt(cashOutNew)} บาท`);
 
   lastSnapshot = {
     customerName,
@@ -342,7 +339,6 @@ function ensureXLSX(){
   }
   return true;
 }
-
 function historyItemToRow(it){
   const dt = new Date(it.ts);
   return {
@@ -361,7 +357,6 @@ function historyItemToRow(it){
     "ข้อความที่คัดลอก": it.copiedText || ""
   };
 }
-
 function exportXLSXAll(){
   if(!ensureXLSX()) return;
   const all = loadHistory();
@@ -375,7 +370,6 @@ function exportXLSXAll(){
   XLSX.utils.book_append_sheet(wb, ws, "ประวัติทั้งหมด");
   XLSX.writeFile(wb, `history_all.xlsx`);
 }
-
 function exportXLSXMonth(monthKey){
   if(!ensureXLSX()) return;
   const all = loadHistory().filter(x => ym(x.ts) === monthKey);
@@ -533,8 +527,7 @@ function onHistoryClick(e){
 }
 
 // ===== Theme (Dark mode) =====
-const THEME_KEY = "ui_theme_v1"; // "dark" | "light" | "auto"
-
+const THEME_KEY = "ui_theme_v1";
 function applyTheme(t){
   document.body.classList.remove("theme-dark","theme-light");
   if(t === "dark") document.body.classList.add("theme-dark");
@@ -560,6 +553,59 @@ function saveTheme(v){
   try{ localStorage.setItem(THEME_KEY, v); }catch{}
 }
 
+// ===== One-press delete = clear whole field (มือถือ + คอม) =====
+function enableOnePressDeleteClear(){
+  const ids = ["oldPrincipal","daysPaid","newPrincipal"];
+
+  ids.forEach(id => {
+    const el = $(id);
+    if(!el) return;
+
+    let prev = el.value || "";
+    let clearing = false;
+
+    function clearNow(){
+      if(clearing) return;
+      clearing = true;
+      el.value = "";
+      el.dispatchEvent(new Event("input", { bubbles:true }));
+      prev = "";
+      clearing = false;
+    }
+
+    el.addEventListener("focus", () => { prev = el.value || ""; });
+    el.addEventListener("click", () => { prev = el.value || ""; });
+
+    // คอม
+    el.addEventListener("keydown", (e) => {
+      if(e.key === "Backspace" || e.key === "Delete"){
+        e.preventDefault();
+        clearNow();
+      }
+    });
+
+    // มือถือ
+    el.addEventListener("beforeinput", (e) => {
+      if(e.inputType && e.inputType.includes("delete")){
+        e.preventDefault();
+        clearNow();
+      }
+    });
+
+    // fallback มือถือบางรุ่น
+    el.addEventListener("input", (e) => {
+      if(clearing) return;
+      const cur = el.value || "";
+      const t = e.inputType || "";
+      if(t.includes("delete") || cur.length < prev.length){
+        clearNow();
+        return;
+      }
+      prev = cur;
+    });
+  });
+}
+
 // ===== Wire (ผูก event แค่รอบเดียว) =====
 function wire(){
   $("nav_calc")?.addEventListener("click", () => setPage("calc"));
@@ -569,7 +615,7 @@ function wire(){
   $("m_reduce")?.addEventListener("click", () => setMode("reduce"));
   $("m_increase")?.addEventListener("click", () => setMode("increase"));
 
-  // ✅ normalize ยอดเงิน
+  // normalize ยอดเงิน
   ["oldPrincipal","newPrincipal"].forEach(id=>{
     const el = $(id);
     el?.addEventListener("input", () => {
@@ -578,7 +624,7 @@ function wire(){
     });
   });
 
-  // ✅ clamp daysPaid 0–24 + เตือน
+  // clamp daysPaid 0–24 + เตือน
   const dp = $("daysPaid");
   dp?.addEventListener("input", () => {
     clampDaysPaidLive();
@@ -599,16 +645,17 @@ function wire(){
 
   $("exportXlsxAllBtn")?.addEventListener("click", exportXLSXAll);
 
-  // Theme toggle
+  // Theme
   $("themeToggle")?.addEventListener("click", () => {
     const current = loadTheme();
     const next = (current === "dark") ? "light" : "dark";
     saveTheme(next);
     applyTheme(next);
   });
-
-  // Apply theme now
   applyTheme(loadTheme());
+
+  // One-press delete
+  enableOnePressDeleteClear();
 }
 
 // ===== Start =====
@@ -616,7 +663,5 @@ updateHistoryCount();
 wire();
 setPage("calc");
 setMode("normal");
-
-// เรียกครั้งแรกให้เตือน daysPaid ถูกต้องทันที
 clampDaysPaidLive();
 recalc();
