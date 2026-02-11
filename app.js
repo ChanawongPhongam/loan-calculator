@@ -61,6 +61,50 @@ function thaiDateLabel(ymdKey){
   return dt.toLocaleDateString("th-TH", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
 }
 
+// ===== Input normalize + daysPaid guard (เพิ่มใหม่) =====
+function normalizeNumericInput(el){
+  if(!el) return;
+  let s = String(el.value ?? "");
+  s = s.replace(/[,\s]/g, "");     // ลบ , และช่องว่างทั้งหมด
+  s = s.replace(/[^\d-]/g, "");    // เอาเฉพาะเลขและเครื่องหมายลบ
+  s = s.replace(/(?!^)-/g, "");    // ไม่ให้มี - ซ้ำหลายตัว
+  el.value = s;
+}
+
+function setDaysPaidWarn(msg){
+  const w = $("daysPaidWarn");
+  if(!w) return;          // ถ้า index.html ยังไม่ได้ใส่ที่เตือน ก็ไม่พัง แค่ไม่โชว์
+  w.textContent = msg || "";
+}
+
+function clampDaysPaidLive(){
+  const el = $("daysPaid");
+  if(!el) return;
+
+  normalizeNumericInput(el);
+
+  // ว่างไว้ก่อนตอนกำลังแก้
+  if(String(el.value).trim() === ""){
+    setDaysPaidWarn("");
+    return;
+  }
+
+  const n = Number(el.value);
+  if(!Number.isFinite(n)){
+    el.value = "";
+    setDaysPaidWarn(`กรุณาใส่จำนวนวัน 0–${DAYS_TOTAL}`);
+    return;
+  }
+
+  const clamped = clampInt(n, 0, DAYS_TOTAL);
+  if(clamped !== n){
+    el.value = String(clamped);
+    setDaysPaidWarn(`ปรับให้อยู่ในช่วง 0–${DAYS_TOTAL} อัตโนมัติ`);
+  } else {
+    setDaysPaidWarn("");
+  }
+}
+
 // ===== NAV (2 หน้า) =====
 function setPage(page){
   const isCalc = page === "calc";
@@ -516,58 +560,6 @@ function saveTheme(v){
   try{ localStorage.setItem(THEME_KEY, v); }catch{}
 }
 
-// ===== One-press delete clears whole field (reliable) =====
-// (กด Backspace/Delete 1 ครั้ง = ล้างทั้งช่อง / มือถือก็จับได้)
-function enableOnePressDeleteClear(){
-  const ids = ["oldPrincipal","daysPaid","newPrincipal"];
-
-  ids.forEach(id => {
-    const el = $(id);
-    if(!el) return;
-
-    // กันลูปตอนเรา set ค่าเอง
-    let isClearing = false;
-
-    function clearNow(){
-      if(isClearing) return;
-      isClearing = true;
-      el.value = "";
-      el.dispatchEvent(new Event("input", { bubbles:true }));
-      isClearing = false;
-    }
-
-    // Desktop
-    el.addEventListener("keydown", (e) => {
-      if(e.key === "Backspace" || e.key === "Delete"){
-        e.preventDefault();
-        clearNow();
-      }
-    });
-
-    // Mobile: ถ้าคีย์บอร์ดส่ง inputType delete มา → ล้าง
-    el.addEventListener("beforeinput", (e) => {
-      if(e.inputType && e.inputType.includes("delete")){
-        e.preventDefault();
-        clearNow();
-      }
-    });
-
-    // Extra fallback: ถ้า value สั้นลง (บางคีย์บอร์ดไม่ส่ง beforeinput)
-    let prev = el.value || "";
-    el.addEventListener("focus", () => { prev = el.value || ""; });
-    el.addEventListener("input", (e) => {
-      if(isClearing) return;
-      const cur = el.value || "";
-      const t = e.inputType || "";
-      if(t.includes("delete") || cur.length < prev.length){
-        clearNow();
-      }else{
-        prev = cur;
-      }
-    });
-  });
-}
-
 // ===== Wire (ผูก event แค่รอบเดียว) =====
 function wire(){
   $("nav_calc")?.addEventListener("click", () => setPage("calc"));
@@ -577,9 +569,24 @@ function wire(){
   $("m_reduce")?.addEventListener("click", () => setMode("reduce"));
   $("m_increase")?.addEventListener("click", () => setMode("increase"));
 
-  ["customerName","oldPrincipal","daysPaid","newPrincipal"].forEach(id=>{
-    $(id)?.addEventListener("input", recalc);
+  // ✅ normalize ยอดเงิน
+  ["oldPrincipal","newPrincipal"].forEach(id=>{
+    const el = $(id);
+    el?.addEventListener("input", () => {
+      normalizeNumericInput(el);
+      recalc();
+    });
   });
+
+  // ✅ clamp daysPaid 0–24 + เตือน
+  const dp = $("daysPaid");
+  dp?.addEventListener("input", () => {
+    clampDaysPaidLive();
+    recalc();
+  });
+
+  // ชื่อลูกค้า
+  $("customerName")?.addEventListener("input", recalc);
 
   $("copyBtn")?.addEventListener("click", copyResult);
 
@@ -602,9 +609,6 @@ function wire(){
 
   // Apply theme now
   applyTheme(loadTheme());
-
-  // Enable one-press delete
-  enableOnePressDeleteClear();
 }
 
 // ===== Start =====
@@ -612,4 +616,7 @@ updateHistoryCount();
 wire();
 setPage("calc");
 setMode("normal");
+
+// เรียกครั้งแรกให้เตือน daysPaid ถูกต้องทันที
+clampDaysPaidLive();
 recalc();
