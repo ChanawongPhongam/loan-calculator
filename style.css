@@ -697,14 +697,42 @@ details > .dateBody{
 }
 
 /* iPad (landscape/กว้าง): จัด 2 คอลัมน์ ฟอร์ม/ผลลัพธ์ */
-@media (min-width: 900px){
-  /* ให้หน้า calc กลายเป็น grid */
+/* iPad เท่านั้น: ทำ 2 คอลัมน์เฉพาะช่วง tablet */
+@media (min-width: 900px) and (max-width: 1180px){
   #page_calc{
     display: grid;
     grid-template-columns: 1.15fr .85fr;
     gap: 14px;
     align-items: start;
   }
+
+  /* toolbar + nav ให้กินเต็มแถว */
+  .nav, .toolbar, .row{
+    grid-column: 1 / -1;
+  }
+
+  /* การ์ดข้อมูลอยู่ซ้าย */
+  #page_calc .card:not(.mt12){
+    grid-column: 1 / 2;
+  }
+
+  /* การ์ดผลลัพธ์อยู่ขวา */
+  #page_calc .card.mt12{
+    grid-column: 2 / 3;
+  }
+
+  /* sticky เฉพาะ iPad */
+  #page_calc .card.mt12:last-of-type{
+    position: sticky;
+    top: calc(12px + env(safe-area-inset-top));
+  }
+
+  /* grid ในการ์ดเป็น 2 คอลัมน์ */
+  .grid{
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+}
+
 
   /* ให้การ์ดผลลัพธ์ sticky อยู่ขวา */
   #page_calc .card.mt12:last-of-type{
@@ -745,5 +773,6 @@ details > .dateBody{
     font-size: 14px;
   }
 }
+
 
 
