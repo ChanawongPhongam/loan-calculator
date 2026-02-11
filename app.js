@@ -8,132 +8,122 @@ let lastSnapshot = null;
 
 // ✅ ใช้ key เดิมเพื่อไม่ให้ประวัติหาย
 const HISTORY_KEY = "cut_history_v5";
-
-// ✅ วันละ 300-400 คน แนะนำ 5000 (ประมาณ 10-15 วัน)
 const HISTORY_LIMIT = 5000;
 
 // ===== Helpers =====
-function $(id) { return document.getElementById(id); }
+function $(id){ return document.getElementById(id); }
 
-function toNumber(v) {
-  const n = Number(String(v).replace(/,/g, "").trim());
+function toNumber(v){
+  const n = Number(String(v).replace(/,/g,"").trim());
   return Number.isFinite(n) ? n : 0;
 }
-
-function clampInt(n, min, max) {
+function clampInt(n, min, max){
   n = Math.floor(n);
   return Math.max(min, Math.min(max, n));
 }
-
-function fmt(n) {
+function fmt(n){
   n = Number.isFinite(n) ? n : 0;
   return n.toLocaleString("th-TH", { maximumFractionDigits: 0 });
 }
-
-function modeLabel(m) {
+function modeLabel(m){
   if (m === "normal") return "ตัดธรรมดา";
   if (m === "reduce") return "ตัดลดยอด";
   return "เพิ่มยอด";
 }
-
-function nowThaiString() {
-  return new Date().toLocaleString("th-TH");
-}
-
-function escapeHtml(s) {
+function nowThaiString(){ return new Date().toLocaleString("th-TH"); }
+function escapeHtml(s){
   return String(s)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
 // ===== Date helpers =====
-function ym(ts) {
+function ym(ts){
   const d = new Date(ts);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; // "2026-02"
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
 }
-
-function ymd(ts) {
+function ymd(ts){
   const d = new Date(ts);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; // "2026-02-10"
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
-
-function thaiMonthLabel(ymKey) {
-  const [Y, M] = ymKey.split("-").map(Number);
-  const dt = new Date(Y, M - 1, 1);
-  const monthName = dt.toLocaleString("th-TH", { month: "long" });
+function thaiMonthLabel(ymKey){
+  const [Y,M] = ymKey.split("-").map(Number);
+  const dt = new Date(Y, M-1, 1);
+  const monthName = dt.toLocaleString("th-TH", { month:"long" });
   return `${monthName} ${Y}`;
 }
-
-function thaiDateLabel(ymdKey) {
-  const [Y, M, D] = ymdKey.split("-").map(Number);
-  const dt = new Date(Y, M - 1, D);
-  return dt.toLocaleDateString("th-TH", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+function thaiDateLabel(ymdKey){
+  const [Y,M,D] = ymdKey.split("-").map(Number);
+  const dt = new Date(Y, M-1, D);
+  return dt.toLocaleDateString("th-TH", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
 }
 
 // ===== NAV (2 หน้า) =====
-function setPage(page) {
+function setPage(page){
   const isCalc = page === "calc";
-  $("page_calc").classList.toggle("hidden", !isCalc);
-  $("page_history").classList.toggle("hidden", isCalc);
+  $("page_calc")?.classList.toggle("hidden", !isCalc);
+  $("page_history")?.classList.toggle("hidden", isCalc);
 
-  $("nav_calc").classList.toggle("active", isCalc);
-  $("nav_history").classList.toggle("active", !isCalc);
+  $("nav_calc")?.classList.toggle("active", isCalc);
+  $("nav_history")?.classList.toggle("active", !isCalc);
 
-  if (!isCalc) renderHistory();
+  if(!isCalc) renderHistory();
 }
 
 // ===== Mode =====
-function setMode(m) {
+function setMode(m){
   mode = m;
 
-  $("m_normal").classList.toggle("active", m === "normal");
-  $("m_reduce").classList.toggle("active", m === "reduce");
-  $("m_increase").classList.toggle("active", m === "increase");
+  $("m_normal")?.classList.toggle("active", m === "normal");
+  $("m_reduce")?.classList.toggle("active", m === "reduce");
+  $("m_increase")?.classList.toggle("active", m === "increase");
 
   const showNew = (m === "reduce" || m === "increase");
-  $("newBox").classList.toggle("hidden", !showNew);
-  $("normalResult").classList.toggle("hidden", showNew);
-  $("newResult").classList.toggle("hidden", !showNew);
+  $("newBox")?.classList.toggle("hidden", !showNew);
+  $("normalResult")?.classList.toggle("hidden", showNew);
+  $("newResult")?.classList.toggle("hidden", !showNew);
 
-  $("newTitle").textContent =
-    m === "reduce" ? "ข้อมูลยอดใหม่ (ลดยอด)"
+  if($("newTitle")){
+    $("newTitle").textContent =
+      m === "reduce" ? "ข้อมูลยอดใหม่ (ลดยอด)"
       : m === "increase" ? "ข้อมูลยอดใหม่ (เพิ่มยอด)"
-        : "ข้อมูลยอดใหม่";
+      : "ข้อมูลยอดใหม่";
+  }
 
   recalc();
 }
 
 // ===== 🔒 ตัวล็อกโหมด =====
-function checkModeLock(oldP, newP) {
-  if (mode === "reduce" && newP > oldP) return "โหมดลดยอด: ยอดใหม่ต้องน้อยกว่าหรือเท่ากับยอดเดิม";
-  if (mode === "increase" && newP < oldP) return "โหมดเพิ่มยอด: ยอดใหม่ต้องมากกว่าหรือเท่ากับยอดเดิม";
+function checkModeLock(oldP, newP){
+  if(mode === "reduce" && newP > oldP) return "โหมดลดยอด: ยอดใหม่ต้องน้อยกว่าหรือเท่ากับยอดเดิม";
+  if(mode === "increase" && newP < oldP) return "โหมดเพิ่มยอด: ยอดใหม่ต้องมากกว่าหรือเท่ากับยอดเดิม";
   return "";
 }
 
 // ===== Calculator (สูตรเดิม 100%) =====
-function recalc() {
-  const customerName = ($("customerName").value || "").trim();
-  const oldP = toNumber($("oldPrincipal").value);
-  const daysPaid = clampInt(toNumber($("daysPaid").value), 0, DAYS_TOTAL);
-  const newP = toNumber($("newPrincipal").value);
+function recalc(){
+  const customerName = ($("customerName")?.value || "").trim();
+  const oldP = toNumber($("oldPrincipal")?.value);
+  const daysPaid = clampInt(toNumber($("daysPaid")?.value), 0, DAYS_TOTAL);
+  const newP = toNumber($("newPrincipal")?.value);
 
-  if (mode !== "normal") {
+  if(mode !== "normal"){
     const lockMsg = checkModeLock(oldP, newP);
-    if (lockMsg) {
-      $("canCut").innerHTML = `<span class="no">ล็อก ❌</span>`;
-      $("cashOutNew").textContent = "-";
-      $("minNewPrincipal").textContent = "-";
-      $("copyStatus").textContent = lockMsg;
+    if(lockMsg){
+      if($("canCut")) $("canCut").innerHTML = `<span class="no">ล็อก ❌</span>`;
+      if($("cashOutNew")) $("cashOutNew").textContent = "-";
+      if($("minNewPrincipal")) $("minNewPrincipal").textContent = "-";
+      if($("copyStatus")) $("copyStatus").textContent = lockMsg;
       lastSnapshot = null;
       return;
     } else {
-      $("copyStatus").textContent = "";
+      if($("copyStatus")) $("copyStatus").textContent = "";
     }
   } else {
-    $("copyStatus").textContent = "";
+    if($("copyStatus")) $("copyStatus").textContent = "";
   }
 
   const payPerDayOld = oldP > 0 ? oldP / UNIT_DIV : 0;
@@ -151,24 +141,25 @@ function recalc() {
 
   const minNewPrincipal = owedAmount > 0 ? Math.ceil(owedAmount / RECEIVE_RATE) : 0;
 
-  $("payPerDayOld").textContent = `${fmt(payPerDayOld)} บาท`;
-  $("receiveOld").textContent = `${fmt(receiveOld)} บาท`;
-  $("daysOwed").textContent = `${daysOwed} วัน`;
-  $("owedAmount").textContent = `${fmt(owedAmount)} บาท`;
-  if (cashOutNormal < 0) {
-    $("cashOutNormal").innerHTML =
-      `<span class="no">❌ ตัดไม่ได้ (${fmt(cashOutNormal)} บาท)</span>`;
-  } else {
-    $("cashOutNormal").innerHTML =
-      `<span class="ok">✅ ${fmt(cashOutNormal)} บาท</span>`;
+  if($("payPerDayOld")) $("payPerDayOld").textContent = `${fmt(payPerDayOld)} บาท`;
+  if($("receiveOld")) $("receiveOld").textContent = `${fmt(receiveOld)} บาท`;
+  if($("daysOwed")) $("daysOwed").textContent = `${daysOwed} วัน`;
+  if($("owedAmount")) $("owedAmount").textContent = `${fmt(owedAmount)} บาท`;
+
+  // ✅ แสดงเตือนตัดไม่ได้ในโหมดธรรมดา
+  if($("cashOutNormal")){
+    if(cashOutNormal < 0){
+      $("cashOutNormal").innerHTML = `<span class="no">❌ ตัดไม่ได้ (${fmt(cashOutNormal)} บาท)</span>`;
+    }else{
+      $("cashOutNormal").innerHTML = `<span class="ok">✅ ${fmt(cashOutNormal)} บาท</span>`;
+    }
   }
 
-
-  $("receiveNew").textContent = `${fmt(receiveNew)} บาท`;
-  $("payPerDayNew").textContent = `${fmt(payPerDayNew)} บาท`;
-  $("minNewPrincipal").textContent = `${fmt(minNewPrincipal)} บาท`;
-  $("canCut").innerHTML = canCut ? `<span class="ok">ได้ ✅</span>` : `<span class="no">ไม่ได้ ❌</span>`;
-  $("cashOutNew").textContent = `${fmt(cashOutNew)} บาท`;
+  if($("receiveNew")) $("receiveNew").textContent = `${fmt(receiveNew)} บาท`;
+  if($("payPerDayNew")) $("payPerDayNew").textContent = `${fmt(payPerDayNew)} บาท`;
+  if($("minNewPrincipal")) $("minNewPrincipal").textContent = `${fmt(minNewPrincipal)} บาท`;
+  if($("canCut")) $("canCut").innerHTML = canCut ? `<span class="ok">ได้ ✅</span>` : `<span class="no">ไม่ได้ ❌</span>`;
+  if($("cashOutNew")) $("cashOutNew").textContent = `${fmt(cashOutNew)} บาท`;
 
   lastSnapshot = {
     customerName,
@@ -189,14 +180,14 @@ function recalc() {
   };
 }
 
-function buildCopyText(s) {
+function buildCopyText(s){
   const nameLine = s.customerName ? `ลูกค้า: ${s.customerName}\n` : "";
   const common =
     `โหมด: ${modeLabel(s.mode)}\n` +
     `ยอดเดิม: ${fmt(s.oldP)} | รับจริงเดิม: ${fmt(s.receiveOld)} | งวด/วัน: ${fmt(s.payPerDayOld)}\n` +
     `ส่งแล้ว: ${s.daysPaid} วัน | วันค้าง: ${s.daysOwed} วัน | ยอดค้าง: ${fmt(s.owedAmount)}\n`;
 
-  if (s.mode === "normal") {
+  if(s.mode === "normal"){
     return nameLine + common +
       `เงินตัดให้ลูกค้า: ${fmt(s.cashOutNormal)} บาท\n` +
       `หมายเหตุ: ตัดแล้วเริ่มนับใหม่ 1/24 วัน`;
@@ -211,8 +202,8 @@ function buildCopyText(s) {
 }
 
 // ===== Clipboard =====
-async function writeClipboard(text) {
-  if (navigator.clipboard && window.isSecureContext) {
+async function writeClipboard(text){
+  if(navigator.clipboard && window.isSecureContext){
     await navigator.clipboard.writeText(text);
     return;
   }
@@ -228,51 +219,47 @@ async function writeClipboard(text) {
 }
 
 // ===== History store =====
-function loadHistory() {
-  try {
+function loadHistory(){
+  try{
     const raw = localStorage.getItem(HISTORY_KEY);
     const arr = raw ? JSON.parse(raw) : [];
     return Array.isArray(arr) ? arr : [];
-  } catch {
+  }catch{
     return [];
   }
 }
-
-function saveHistory(arr) {
+function saveHistory(arr){
   localStorage.setItem(HISTORY_KEY, JSON.stringify(arr.slice(0, HISTORY_LIMIT)));
   updateHistoryCount();
 }
-
-function updateHistoryCount() {
-  $("historyCount").textContent = String(loadHistory().length);
+function updateHistoryCount(){
+  const el = $("historyCount");
+  if(el) el.textContent = String(loadHistory().length);
 }
-
-function addHistoryItem(item) {
+function addHistoryItem(item){
   const arr = loadHistory();
   arr.unshift(item);
   saveHistory(arr);
 }
-
-function deleteHistoryItem(id) {
+function deleteHistoryItem(id){
   const arr = loadHistory().filter(x => String(x.id) !== String(id));
   saveHistory(arr);
   renderHistory();
 }
-
-function clearHistory() {
+function clearHistory(){
   localStorage.removeItem(HISTORY_KEY);
   updateHistoryCount();
   renderHistory();
 }
 
 // ===== Copy + Save history ONLY when copying =====
-async function copyResult() {
-  if (!lastSnapshot) return;
+async function copyResult(){
+  if(!lastSnapshot) return;
 
   const text = buildCopyText(lastSnapshot);
   const statusEl = $("copyStatus");
 
-  try {
+  try{
     await writeClipboard(text);
 
     addHistoryItem({
@@ -280,8 +267,6 @@ async function copyResult() {
       ts: Date.now(),
       tsText: nowThaiString(),
       customerName: lastSnapshot.customerName || "",
-
-      // เก็บข้อมูลที่ต้องใช้ส่งออก Excel ด้วย (ครบ)
       mode: lastSnapshot.mode,
       oldP: lastSnapshot.oldP,
       newP: lastSnapshot.newP,
@@ -290,28 +275,31 @@ async function copyResult() {
       canCut: lastSnapshot.canCut,
       cashOutNormal: lastSnapshot.cashOutNormal,
       cashOutNew: lastSnapshot.cashOutNew,
-
       copiedText: text
     });
 
-    statusEl.textContent = "คัดลอกแล้ว + บันทึกประวัติ ✅";
-    setTimeout(() => statusEl.textContent = "", 1500);
-  } catch {
-    statusEl.textContent = "คัดลอกไม่สำเร็จ ❌";
-    setTimeout(() => statusEl.textContent = "", 2000);
+    if(statusEl){
+      statusEl.textContent = "คัดลอกแล้ว + บันทึกประวัติ ✅";
+      setTimeout(()=> statusEl.textContent = "", 1500);
+    }
+  }catch{
+    if(statusEl){
+      statusEl.textContent = "คัดลอกไม่สำเร็จ ❌";
+      setTimeout(()=> statusEl.textContent = "", 2000);
+    }
   }
 }
 
 // ===== XLSX Export =====
-function ensureXLSX() {
-  if (typeof XLSX === "undefined") {
-    alert("ยังโหลดไลบรารี XLSX ไม่สำเร็จ (เช็คว่าเปิดเน็ตได้ และมี script xlsx ใน index.html)");
+function ensureXLSX(){
+  if(typeof XLSX === "undefined"){
+    alert("ยังโหลดไลบรารี XLSX ไม่สำเร็จ");
     return false;
   }
   return true;
 }
 
-function historyItemToRow(it) {
+function historyItemToRow(it){
   const dt = new Date(it.ts);
   return {
     "เดือน": ym(it.ts),
@@ -330,84 +318,65 @@ function historyItemToRow(it) {
   };
 }
 
-function exportXLSXAll() {
-  if (!ensureXLSX()) return;
-
+function exportXLSXAll(){
+  if(!ensureXLSX()) return;
   const all = loadHistory();
-  if (!all.length) {
+  if(!all.length){
     alert("ยังไม่มีประวัติให้ส่งออก");
     return;
   }
-
   const rows = all.map(historyItemToRow);
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(rows);
-
-  ws["!cols"] = [
-    { wch: 10 }, { wch: 14 }, { wch: 10 }, { wch: 22 },
-    { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
-    { wch: 12 }, { wch: 16 }, { wch: 22 }, { wch: 40 }
-  ];
-
   XLSX.utils.book_append_sheet(wb, ws, "ประวัติทั้งหมด");
   XLSX.writeFile(wb, `history_all.xlsx`);
 }
 
-function exportXLSXMonth(monthKey) {
-  if (!ensureXLSX()) return;
-
+function exportXLSXMonth(monthKey){
+  if(!ensureXLSX()) return;
   const all = loadHistory().filter(x => ym(x.ts) === monthKey);
-  if (!all.length) {
+  if(!all.length){
     alert("เดือนไม่มีข้อมูลให้ส่งออก");
     return;
   }
-
   const rows = all.map(historyItemToRow);
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(rows);
-
-  ws["!cols"] = [
-    { wch: 10 }, { wch: 14 }, { wch: 10 }, { wch: 22 },
-    { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
-    { wch: 12 }, { wch: 16 }, { wch: 22 }, { wch: 40 }
-  ];
-
   XLSX.utils.book_append_sheet(wb, ws, `เดือน ${monthKey}`);
   XLSX.writeFile(wb, `history_${monthKey}.xlsx`);
 }
 
-// ===== Render History: เดือน -> วัน -> รายชื่อลูกค้า (เปิดวันแล้วโชว์ลูกค้าทันที) =====
-function renderHistory() {
+// ===== Render History: เดือน -> วัน -> รายชื่อลูกค้า =====
+function renderHistory(){
   const list = $("historyList");
   const all = loadHistory();
 
-  if (!all.length) {
+  if(!list) return;
+
+  if(!all.length){
     list.innerHTML = `<div class="hint">ยังไม่มีประวัติ (จะบันทึกเมื่อกด “คัดลอกผลลัพธ์”)</div>`;
     updateHistoryCount();
     return;
   }
 
-  // Group by month
-  const monthMap = new Map(); // "YYYY-MM" -> items[]
-  for (const item of all) {
+  const monthMap = new Map();
+  for(const item of all){
     const mKey = ym(item.ts);
-    if (!monthMap.has(mKey)) monthMap.set(mKey, []);
+    if(!monthMap.has(mKey)) monthMap.set(mKey, []);
     monthMap.get(mKey).push(item);
   }
-
-  const monthKeys = Array.from(monthMap.keys()).sort((a, b) => b.localeCompare(a)); // ล่าสุดก่อน
+  const monthKeys = Array.from(monthMap.keys()).sort((a,b)=> b.localeCompare(a));
 
   list.innerHTML = monthKeys.map((mKey) => {
     const monthItems = monthMap.get(mKey);
 
-    // Group by date in month
-    const dateMap = new Map(); // "YYYY-MM-DD" -> items[]
-    for (const it of monthItems) {
+    const dateMap = new Map();
+    for(const it of monthItems){
       const dKey = ymd(it.ts);
-      if (!dateMap.has(dKey)) dateMap.set(dKey, []);
+      if(!dateMap.has(dKey)) dateMap.set(dKey, []);
       dateMap.get(dKey).push(it);
     }
-    const dateKeys = Array.from(dateMap.keys()).sort((a, b) => b.localeCompare(a));
+    const dateKeys = Array.from(dateMap.keys()).sort((a,b)=> b.localeCompare(a));
 
     return `
       <details class="monthCard">
@@ -424,22 +393,19 @@ function renderHistory() {
           </div>
 
           ${dateKeys.map((dKey) => {
-      const dayItems = dateMap.get(dKey);
-
-      const dayRows = dayItems.map(renderCustomerRow).join("");
-
-      return `
+            const dayItems = dateMap.get(dKey);
+            return `
               <details class="dateCard">
                 <summary>
                   <span>${escapeHtml(thaiDateLabel(dKey))}</span>
                   <span class="dateMeta">${dayItems.length} คน</span>
                 </summary>
                 <div class="dateBody">
-                  ${dayRows}
+                  ${dayItems.map(renderCustomerRow).join("")}
                 </div>
               </details>
             `;
-    }).join("")}
+          }).join("")}
         </div>
       </details>
     `;
@@ -448,12 +414,12 @@ function renderHistory() {
   updateHistoryCount();
 }
 
-function renderCustomerRow(item) {
+function renderCustomerRow(item){
   const name = item.customerName ? item.customerName : "(ไม่ใส่ชื่อ)";
   const modeTxt = modeLabel(item.mode);
 
   let moneyLine = "";
-  if (item.mode === "normal") {
+  if(item.mode === "normal"){
     moneyLine = `เงินตัด: ${fmt(item.cashOutNormal)} บาท`;
   } else {
     moneyLine = `เงินรับ: ${fmt(item.cashOutNew)} บาท (${item.canCut ? "ตัดได้" : "ตัดไม่ได้"})`;
@@ -486,53 +452,51 @@ function renderCustomerRow(item) {
   `;
 }
 
-// ✅ Event Delegation: ปุ่มคัดลอก/ลบ/ส่งออก Excel ในประวัติไม่หลุด
-function onHistoryClick(e) {
+// ✅ Event Delegation ในประวัติ
+function onHistoryClick(e){
   const btn = e.target.closest("button[data-action]");
-  if (!btn) return;
+  if(!btn) return;
 
   const action = btn.getAttribute("data-action");
 
-  if (action === "export-month-xlsx") {
-    const mKey = btn.getAttribute("data-month");
-    exportXLSXMonth(String(mKey));
+  if(action === "export-month-xlsx"){
+    exportXLSXMonth(String(btn.getAttribute("data-month") || ""));
     return;
   }
 
   const id = btn.getAttribute("data-id");
   const item = loadHistory().find(x => String(x.id) === String(id));
-  if (!item) return;
+  if(!item) return;
 
-  if (action === "delete") {
+  if(action === "delete"){
     deleteHistoryItem(id);
     return;
   }
 
-  if (action === "copy") {
+  if(action === "copy"){
     writeClipboard(item.copiedText || "")
-      .then(() => {
+      .then(()=>{
         const old = btn.textContent;
         btn.textContent = "คัดลอกแล้ว ✅";
-        setTimeout(() => btn.textContent = old, 1200);
+        setTimeout(()=> btn.textContent = old, 1200);
       })
-      .catch(() => {
+      .catch(()=>{
         const old = btn.textContent;
         btn.textContent = "คัดลอกไม่ได้ ❌";
-        setTimeout(() => btn.textContent = old, 1500);
+        setTimeout(()=> btn.textContent = old, 1500);
       });
   }
 }
 
 // ===== Theme (Dark mode) =====
-const THEME_KEY = "ui_theme_v1";
+const THEME_KEY = "ui_theme_v1"; // "dark" | "light" | "auto"
 
-function applyTheme(mode){
-  document.body.classList.remove("theme-dark", "theme-light");
+function applyTheme(t){
+  document.body.classList.remove("theme-dark","theme-light");
+  if(t === "dark") document.body.classList.add("theme-dark");
+  else if(t === "light") document.body.classList.add("theme-light");
 
-  if(mode === "dark") document.body.classList.add("theme-dark");
-  else if(mode === "light") document.body.classList.add("theme-light");
-
-  const btn = document.getElementById("themeToggle");
+  const btn = $("themeToggle");
   if(btn){
     const isDark =
       document.body.classList.contains("theme-dark") ||
@@ -544,42 +508,35 @@ function applyTheme(mode){
     btn.title = isDark ? "สลับเป็นโหมดสว่าง" : "สลับเป็นโหมดมืด";
   }
 }
-
 function loadTheme(){
   try{ return localStorage.getItem(THEME_KEY) || "auto"; }
   catch{ return "auto"; }
 }
-
 function saveTheme(v){
   try{ localStorage.setItem(THEME_KEY, v); }catch{}
 }
 
-
-// ===== One-press delete = clear whole field (ULTRA robust) =====
+// ===== One-press delete clears whole field (reliable) =====
+// (กด Backspace/Delete 1 ครั้ง = ล้างทั้งช่อง / มือถือก็จับได้)
 function enableOnePressDeleteClear(){
-  const ids = ["oldPrincipal", "daysPaid", "newPrincipal"];
+  const ids = ["oldPrincipal","daysPaid","newPrincipal"];
 
   ids.forEach(id => {
-    const el = document.getElementById(id);
+    const el = $(id);
     if(!el) return;
 
-    let prev = el.value || "";
-    let clearing = false;
+    // กันลูปตอนเรา set ค่าเอง
+    let isClearing = false;
 
     function clearNow(){
-      if(clearing) return;
-      clearing = true;
-
+      if(isClearing) return;
+      isClearing = true;
       el.value = "";
-      el.dispatchEvent(new Event("input", { bubbles: true }));
-
-      prev = "";
-      clearing = false;
+      el.dispatchEvent(new Event("input", { bubbles:true }));
+      isClearing = false;
     }
 
-    el.addEventListener("focus", () => { prev = el.value || ""; });
-    el.addEventListener("click", () => { prev = el.value || ""; });
-
+    // Desktop
     el.addEventListener("keydown", (e) => {
       if(e.key === "Backspace" || e.key === "Delete"){
         e.preventDefault();
@@ -587,73 +544,72 @@ function enableOnePressDeleteClear(){
       }
     });
 
-    el.addEventListener("input", (e) => {
-      if(clearing) return;
+    // Mobile: ถ้าคีย์บอร์ดส่ง inputType delete มา → ล้าง
+    el.addEventListener("beforeinput", (e) => {
+      if(e.inputType && e.inputType.includes("delete")){
+        e.preventDefault();
+        clearNow();
+      }
+    });
 
+    // Extra fallback: ถ้า value สั้นลง (บางคีย์บอร์ดไม่ส่ง beforeinput)
+    let prev = el.value || "";
+    el.addEventListener("focus", () => { prev = el.value || ""; });
+    el.addEventListener("input", (e) => {
+      if(isClearing) return;
       const cur = el.value || "";
       const t = e.inputType || "";
-
-      if(t.includes("delete")){
+      if(t.includes("delete") || cur.length < prev.length){
         clearNow();
-        return;
+      }else{
+        prev = cur;
       }
-      if(cur.length < prev.length){
-        clearNow();
-        return;
-      }
-      prev = cur;
     });
   });
 }
 
+// ===== Wire (ผูก event แค่รอบเดียว) =====
+function wire(){
+  $("nav_calc")?.addEventListener("click", () => setPage("calc"));
+  $("nav_history")?.addEventListener("click", () => setPage("history"));
 
-// ===== Wire =====
-$("nav_calc").addEventListener("click", () => setPage("calc"));
-$("nav_history").addEventListener("click", () => setPage("history"));
+  $("m_normal")?.addEventListener("click", () => setMode("normal"));
+  $("m_reduce")?.addEventListener("click", () => setMode("reduce"));
+  $("m_increase")?.addEventListener("click", () => setMode("increase"));
 
-$("m_normal").addEventListener("click", () => setMode("normal"));
-$("m_reduce").addEventListener("click", () => setMode("reduce"));
-$("m_increase").addEventListener("click", () => setMode("increase"));
+  ["customerName","oldPrincipal","daysPaid","newPrincipal"].forEach(id=>{
+    $(id)?.addEventListener("input", recalc);
+  });
 
-["customerName", "oldPrincipal", "daysPaid", "newPrincipal"].forEach(id => {
-  $(id).addEventListener("input", recalc);
-});
+  $("copyBtn")?.addEventListener("click", copyResult);
 
-$("copyBtn").addEventListener("click", copyResult);
+  $("clearHistoryBtn")?.addEventListener("click", () => {
+    const ok = confirm("ล้างประวัติทั้งหมดใช่ไหม?");
+    if(ok) clearHistory();
+  });
 
-$("clearHistoryBtn").addEventListener("click", () => {
-  const ok = confirm("ล้างประวัติทั้งหมดใช่ไหม?");
-  if(ok) clearHistory();
-});
+  $("historyList")?.addEventListener("click", onHistoryClick);
 
-$("historyList").addEventListener("click", onHistoryClick);
+  $("exportXlsxAllBtn")?.addEventListener("click", exportXLSXAll);
 
-$("exportXlsxAllBtn").addEventListener("click", exportXLSXAll);
-
-// Theme toggle
-const themeBtn = document.getElementById("themeToggle");
-if(themeBtn){
-  themeBtn.addEventListener("click", () => {
+  // Theme toggle
+  $("themeToggle")?.addEventListener("click", () => {
     const current = loadTheme();
     const next = (current === "dark") ? "light" : "dark";
     saveTheme(next);
     applyTheme(next);
   });
+
+  // Apply theme now
+  applyTheme(loadTheme());
+
+  // Enable one-press delete
+  enableOnePressDeleteClear();
 }
-applyTheme(loadTheme());
 
-// เรียก One-press delete หลังจาก DOM มี element แล้ว (ตอนนี้มีแล้ว)
-enableOnePressDeleteClear();
-
-
-// Start
+// ===== Start =====
 updateHistoryCount();
+wire();
 setPage("calc");
 setMode("normal");
 recalc();
-
-
-
-
-
-
