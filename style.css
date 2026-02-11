@@ -583,107 +583,156 @@ body.theme-dark .pre{
   min-height: 16px;
 }
 
-/* ================================
-   Dark mode: Fix HISTORY UI
-   วางไว้ท้ายไฟล์ style.css
-================================ */
+/* =========================================
+   iOS GLASS DARK MODE – HISTORY SECTION
+   วางท้าย style.css
+========================================= */
 
-/* ให้ทุกอย่างในประวัติ inherit โทนมืด */
-body.theme-dark #page_history,
-body.theme-dark #historyList{
-  color: rgba(255,255,255,.92);
+body.theme-dark{
+  background: #0c0f14;
 }
 
-/* Card ใหญ่ของหน้า history */
+/* หน้า history พื้นหลังลึก */
+body.theme-dark #page_history{
+  background: linear-gradient(180deg,#0c0f14 0%, #0f1622 100%);
+  color: #f5f7fa;
+}
+
+/* การ์ดหลัก */
 body.theme-dark #page_history .card{
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.10);
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 22px;
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,.05);
 }
 
 /* ===== เดือน ===== */
 body.theme-dark .monthCard{
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: 16px;
+  background: rgba(255,255,255,0.035);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.07);
+  margin-top: 16px;
   overflow: hidden;
 }
 
 body.theme-dark .monthCard > summary{
-  background: rgba(0,0,0,.18);
-  color: rgba(255,255,255,.92);
-  border-bottom: 1px solid rgba(255,255,255,.08);
+  padding: 14px 18px;
+  font-weight: 600;
+  font-size: 15px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: #ffffff;
 }
 
 /* ===== วัน ===== */
 body.theme-dark .dateCard{
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.07);
+  margin-top: 12px;
   overflow: hidden;
-  margin-top: 10px;
 }
 
 body.theme-dark .dateCard > summary{
-  background: rgba(0,0,0,.16);
-  color: rgba(255,255,255,.92);
-  border-bottom: 1px solid rgba(255,255,255,.07);
+  padding: 12px 16px;
+  font-weight: 500;
+  font-size: 14px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: #f1f4f8;
 }
 
 /* ===== รายการลูกค้า ===== */
 body.theme-dark .historyItem{
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: 14px;
-  color: rgba(255,255,255,.92);
+  background: rgba(255,255,255,0.045);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 14px 16px;
+  margin-top: 12px;
+  box-shadow:
+    0 8px 30px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.05);
 }
 
-/* ข้อความรอง/เมตา ให้ซีดลงแต่ยังอ่านได้ */
+/* ตัวหนังสือหลัก */
+body.theme-dark .itemName{
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: .2px;
+}
+
+/* ตัวเลขเงิน */
+body.theme-dark .historyItem b{
+  font-size: 16px;
+  color: #ffffff;
+}
+
+/* ตัวหนังสือรอง */
 body.theme-dark .monthMeta,
 body.theme-dark .dateMeta,
 body.theme-dark .itemMeta{
-  color: rgba(255,255,255,.68) !important;
-}
-
-/* ชื่อ/หัวข้อ ให้เด่น */
-body.theme-dark .itemName{
-  color: rgba(255,255,255,.95) !important;
+  color: rgba(255,255,255,0.65);
+  font-size: 13px;
 }
 
 /* กล่องข้อความที่คัดลอก */
 body.theme-dark .pre{
-  background: rgba(0,0,0,.35);
-  border: 1px solid rgba(255,255,255,.10);
-  color: rgba(255,255,255,.90);
+  background: rgba(0,0,0,0.45);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 10px;
+  color: #e6edf3;
+  font-size: 13px;
 }
 
-/* ปุ่มในประวัติ */
+/* ===== ปุ่ม ===== */
 body.theme-dark .smallBtn{
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.14);
-  color: rgba(255,255,255,.92);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 6px 12px;
+  transition: all .2s ease;
 }
 
 body.theme-dark .smallBtn:hover{
-  background: rgba(255,255,255,.12);
+  background: rgba(255,255,255,0.12);
 }
 
 body.theme-dark .smallBtn.danger{
-  background: rgba(239,68,68,.18);
-  border: 1px solid rgba(239,68,68,.35);
-  color: rgba(255,255,255,.95);
+  background: rgba(239,68,68,0.18);
+  border: 1px solid rgba(239,68,68,0.35);
+  color: #fff;
 }
 
-/* สรุปใน <summary> (กันตัวอักษรซีดเกิน) */
+/* ===== summary arrow เนียนขึ้น ===== */
 body.theme-dark summary{
-  color: rgba(255,255,255,.92);
+  cursor: pointer;
+  list-style: none;
 }
 
-/* เส้นคั่น/กรอบบาง ๆ */
-body.theme-dark hr,
-body.theme-dark .divider{
-  border-color: rgba(255,255,255,.10);
+body.theme-dark summary::-webkit-details-marker{
+  display:none;
 }
+
+body.theme-dark summary::after{
+  content: "›";
+  float: right;
+  transition: transform .2s ease;
+  opacity: .7;
+}
+
+body.theme-dark details[open] > summary::after{
+  transform: rotate(90deg);
+}
+
 
 
 
