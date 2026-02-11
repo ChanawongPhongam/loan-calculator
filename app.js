@@ -514,7 +514,7 @@ function renderCustomerRow(item){
       ${short ? `<div class="itemMeta" style="margin-top:6px;">📋 ข้อความสั้น: <b>${escapeHtml(short)}</b></div>` : ``}
 
       <details style="margin-top:10px;">
-        <summary class="copySummary">📄 ดูข้อความละเอียดที่บันทึก</summary>
+        <summary class="copySummary">ดูข้อความละเอียดที่บันทึก</summary>
         <div class="pre">${escapeHtml(item.copiedText || "")}</div>
       </details>
 
@@ -724,3 +724,4 @@ setPage("calc");
 setMode("normal");
 clampDaysPaidLive();
 recalc();
+
