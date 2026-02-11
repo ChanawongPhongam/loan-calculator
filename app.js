@@ -523,73 +523,22 @@ function onHistoryClick(e) {
   }
 }
 
-// ===== Wire =====
-$("nav_calc").addEventListener("click", () => setPage("calc"));
-$("nav_history").addEventListener("click", () => setPage("history"));
-
-$("m_normal").addEventListener("click", () => setMode("normal"));
-$("m_reduce").addEventListener("click", () => setMode("reduce"));
-$("m_increase").addEventListener("click", () => setMode("increase"));
-
-["customerName", "oldPrincipal", "daysPaid", "newPrincipal"].forEach(id => {
-  $(id).addEventListener("input", recalc);
-});
-
-$("copyBtn").addEventListener("click", copyResult);
-
-// Theme toggle
-const themeBtn = document.getElementById("themeToggle");
-if(themeBtn){
-  themeBtn.addEventListener("click", () => {
-    // toggle dark <-> light (ง่ายสุดสำหรับใช้งานจริง)
-    const current = loadTheme();
-    const next = (current === "dark") ? "light" : "dark";
-    saveTheme(next);
-    applyTheme(next);
-  });
-}
-
-// Apply theme on load
-applyTheme(loadTheme());
-
-// Update icon if system theme changes while on auto
-if(window.matchMedia){
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-    if(loadTheme() === "auto") applyTheme("auto");
-  });
-}
-
-
-$("clearHistoryBtn").addEventListener("click", () => {
-  const ok = confirm("ล้างประวัติทั้งหมดใช่ไหม?");
-  if (ok) clearHistory();
-});
-
-$("historyList").addEventListener("click", onHistoryClick);
-
-// Export all button (บนหัวหน้า history)
-$("exportXlsxAllBtn").addEventListener("click", exportXLSXAll);
-
 // ===== Theme (Dark mode) =====
-const THEME_KEY = "ui_theme_v1"; // "dark" | "light" | "auto"
+const THEME_KEY = "ui_theme_v1";
 
 function applyTheme(mode){
-  // mode: "dark" | "light" | "auto"
   document.body.classList.remove("theme-dark", "theme-light");
 
-  if(mode === "dark"){
-    document.body.classList.add("theme-dark");
-  } else if(mode === "light"){
-    document.body.classList.add("theme-light");
-  } else {
-    // auto: follow system, but allow prefers-color-scheme to do work
-    // no class needed
-  }
+  if(mode === "dark") document.body.classList.add("theme-dark");
+  else if(mode === "light") document.body.classList.add("theme-light");
 
   const btn = document.getElementById("themeToggle");
   if(btn){
-    const isDark = document.body.classList.contains("theme-dark") ||
-      (!document.body.classList.contains("theme-light") && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    const isDark =
+      document.body.classList.contains("theme-dark") ||
+      (!document.body.classList.contains("theme-light") &&
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
 
     btn.textContent = isDark ? "☀️" : "🌙";
     btn.title = isDark ? "สลับเป็นโหมดสว่าง" : "สลับเป็นโหมดมืด";
@@ -597,16 +546,14 @@ function applyTheme(mode){
 }
 
 function loadTheme(){
-  try{
-    return localStorage.getItem(THEME_KEY) || "auto";
-  }catch{
-    return "auto";
-  }
+  try{ return localStorage.getItem(THEME_KEY) || "auto"; }
+  catch{ return "auto"; }
 }
 
 function saveTheme(v){
   try{ localStorage.setItem(THEME_KEY, v); }catch{}
 }
+
 
 // ===== One-press delete = clear whole field (ULTRA robust) =====
 function enableOnePressDeleteClear(){
@@ -624,18 +571,15 @@ function enableOnePressDeleteClear(){
       clearing = true;
 
       el.value = "";
-      // ให้ recalc ทำงานทันที
       el.dispatchEvent(new Event("input", { bubbles: true }));
 
       prev = "";
       clearing = false;
     }
 
-    // อัปเดต prev ตอนเข้า/ออก เพื่อให้เทียบความยาวได้ถูก
     el.addEventListener("focus", () => { prev = el.value || ""; });
     el.addEventListener("click", () => { prev = el.value || ""; });
 
-    // คอม: ถ้ากด Backspace/Delete ให้ล้างทันที
     el.addEventListener("keydown", (e) => {
       if(e.key === "Backspace" || e.key === "Delete"){
         e.preventDefault();
@@ -643,33 +587,63 @@ function enableOnePressDeleteClear(){
       }
     });
 
-    // มือถือ: จับจาก inputType หรือ “ความยาวสั้นลง”
     el.addEventListener("input", (e) => {
       if(clearing) return;
 
       const cur = el.value || "";
       const t = e.inputType || "";
 
-      // 1) คีย์บอร์ดที่ส่ง inputType delete มา
       if(t.includes("delete")){
         clearNow();
         return;
       }
-
-      // 2) กันเคสที่ไม่ส่ง inputType: ถ้าความยาวสั้นลง = ถือว่าลบ
       if(cur.length < prev.length){
         clearNow();
         return;
       }
-
-      // ปกติ: อัปเดต prev
       prev = cur;
     });
   });
 }
 
-enableOnePressDeleteClear();
 
+// ===== Wire =====
+$("nav_calc").addEventListener("click", () => setPage("calc"));
+$("nav_history").addEventListener("click", () => setPage("history"));
+
+$("m_normal").addEventListener("click", () => setMode("normal"));
+$("m_reduce").addEventListener("click", () => setMode("reduce"));
+$("m_increase").addEventListener("click", () => setMode("increase"));
+
+["customerName", "oldPrincipal", "daysPaid", "newPrincipal"].forEach(id => {
+  $(id).addEventListener("input", recalc);
+});
+
+$("copyBtn").addEventListener("click", copyResult);
+
+$("clearHistoryBtn").addEventListener("click", () => {
+  const ok = confirm("ล้างประวัติทั้งหมดใช่ไหม?");
+  if(ok) clearHistory();
+});
+
+$("historyList").addEventListener("click", onHistoryClick);
+
+$("exportXlsxAllBtn").addEventListener("click", exportXLSXAll);
+
+// Theme toggle
+const themeBtn = document.getElementById("themeToggle");
+if(themeBtn){
+  themeBtn.addEventListener("click", () => {
+    const current = loadTheme();
+    const next = (current === "dark") ? "light" : "dark";
+    saveTheme(next);
+    applyTheme(next);
+  });
+}
+applyTheme(loadTheme());
+
+// เรียก One-press delete หลังจาก DOM มี element แล้ว (ตอนนี้มีแล้ว)
+enableOnePressDeleteClear();
 
 
 // Start
@@ -677,6 +651,7 @@ updateHistoryCount();
 setPage("calc");
 setMode("normal");
 recalc();
+
 
 
 
