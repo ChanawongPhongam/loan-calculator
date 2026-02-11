@@ -499,18 +499,54 @@ body.theme-dark .pre{
 }
 
 /* Copy summary pill (รองรับกรณีแก้ app.js เป็น class copySummary) */
+/* ===== Copy Summary Button (Pro Native) ===== */
 .copySummary{
-  display:inline-flex;
+  display:flex;
   align-items:center;
+  justify-content:center;
   gap: 8px;
-  padding: 8px 12px;
+
+  padding: 10px 16px;
   border-radius: 999px;
-  background: var(--btn);
-  border: 1px solid var(--btnBorder);
+
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.18);
+
   color: var(--text);
   font-weight: 900;
-  margin-top: 10px;
+  font-size: 14px;
+
+  cursor: pointer;
+  transition: all .18s ease;
+  user-select: none;
 }
+
+.copySummary::before{
+  content:"📄";
+  font-size: 14px;
+}
+
+.copySummary:hover{
+  background: rgba(255,255,255,.16);
+  transform: translateY(-1px);
+}
+
+.copySummary:active{
+  transform: scale(.97);
+}
+
+body.theme-dark .copySummary{
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.92);
+}
+
+body.theme-dark .copySummary:hover{
+  background: rgba(255,255,255,.09);
+}
+in-top: 10px;
+}
+
 .copySummary::before{ content:"📝"; }
 body.theme-dark .copySummary{
   background: rgba(255,255,255,.06);
@@ -549,3 +585,75 @@ details > .dateBody{
   from{ opacity:0; transform: translateY(-4px); }
   to{ opacity:1; transform: translateY(0); }
 }
+
+/* =========================================
+   iPhone Fit Mode (Normal Mode Only)
+========================================= */
+
+/* ทำให้หน้า calc เต็มจอมือถือ */
+@media (max-width: 430px){
+
+  body{
+    padding-bottom: 0;
+  }
+
+  .wrap{
+    padding: 0 14px;
+  }
+
+  h1{
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+
+  .sub{
+    display:none; /* ซ่อนสูตรบนมือถือ */
+  }
+
+  .card{
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .cardTitle{
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .grid{
+    gap: 8px;
+  }
+
+  input{
+    min-height: 40px;
+    font-size: 15px;
+  }
+
+  .read{
+    min-height: 40px;
+    font-size: 14px;
+  }
+
+  .resultLine{
+    font-size: 14px;
+  }
+
+  .resultLine b{
+    font-size: 16px;
+  }
+
+  .nav{
+    margin: 8px 0 10px;
+  }
+
+  .row{
+    margin: 6px 0;
+  }
+
+  /* ลดช่องว่างระหว่าง card */
+  .mt12{
+    margin-top: 8px;
+  }
+}
+
+
